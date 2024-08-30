@@ -4,6 +4,10 @@ docs_dir: 'docs'
 
 site_url: https://ckatsama.gitlabpages.inria.fr/mpfi.jl
 
+nav:
+  - index.md
+  - software.md
+
 theme:
   name: 'material'
   features:
