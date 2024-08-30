@@ -38,7 +38,6 @@ else
         # mpfi compiled with --with-gmp-lib=/Applications/Julia-1.9.app/Contents/Resources/julia/lib/julia --with-mpfr-lib=/Applications/Julia-1.9.app/Contents/Resources/julia/lib/julia
         # and with functions exp10m1, exp2m1, log2p1, log10p1 removed from source files of mpfi
         libmpfi = joinpath(LIB_PATH, om*"/libmpfi.0.dylib")
-        #libmpfi = joinpath(@__DIR__, "../libs/libmpfi.0.dylib")
     else # Sys.islinux()
         libmpfi = joinpath(LIB_PATH, om*"/libmpfi.so.0.0.0")
     end
