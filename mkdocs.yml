@@ -2,7 +2,7 @@ site_name: PACE
 site_dir: 'public/'
 docs_dir: 'docs'
 
-site_url: https://pace.gitlabpages.inria.fr/mpfi.jl
+site_url: https://ckatsama.gitlabpages.inria.fr/mpfi.jl
 
 theme:
   name: 'material'
