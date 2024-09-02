@@ -379,7 +379,7 @@ for (fJ, fC) in ((:-,:sub), (:/,:div))
             return z
         end
         
-        function ($fJ)(x::BigInterval, c::BigFloat)
+        function ($fJ)(c::BigFloat, x::BigInterval)
             z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_fr_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigFloat}, Ref{BigInterval}), z, c, x)
             return z
@@ -684,7 +684,6 @@ end
 
 print(io::IO, b::BigInterval) = print(io, string(b))
 
-show(io::IO, b::BigInterval) = print(io, string(b))
 
 function show(io::IO, b::BigInterval)
     if get(io, :compact, false)
