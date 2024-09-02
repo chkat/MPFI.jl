@@ -40,3 +40,7 @@ Thumbs.db
 # Build directories #
 ####################
 build/
+
+# Julia Package #
+#################
+/Manifest.toml

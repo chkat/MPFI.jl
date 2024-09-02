@@ -1,5 +1,5 @@
 
-module mpfi
+module MPFI
 
 export BigInterval, precision, left, right, has_zero, isbounded
 
@@ -24,7 +24,7 @@ const CdoubleMax = Union{Float16, Float32, Float64}
 
 =#
 # Replace with the path to your shared library (.so, .dylib or .dll file)
-LIB_PATH = abspath(joinpath(@__DIR__, "../bin/"))
+#=LIB_PATH = abspath(joinpath(@__DIR__, "../bin/"))
 
 # Load the shared library
 if Sys.iswindows()
@@ -41,7 +41,9 @@ else
     else # Sys.islinux()
         libmpfi = joinpath(LIB_PATH, om*"/libmpfi.so.0.0.0")
     end
-end
+end =#
+
+using MPFI_jll: libmpfi
 
 """
     BigInterval <: Number
@@ -224,14 +226,14 @@ BigInterval(x::Rational;precision::Integer=DEFAULT_PRECISION()) = BigInterval(nu
 for (fJ, fC) in ((:+,:add), (:*,:mul))
     @eval begin 
         function ($fJ)(x::BigInterval, y::BigInterval)
-            z = BigInterval(;precision=max(mpfi.precision(x), mpfi.precision(y)))
+            z = BigInterval(;precision=max(MPFI.precision(x), MPFI.precision(y)))
             ccall(($(string(:mpfi_,fC)),libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), Ref(z), Ref(x), Ref(y))
             return z
         end
 
         # Unsigned Integer
         function ($fJ)(x::BigInterval, c::CulongMax)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_ui)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Culong), z, x, c)
             return z
         end
@@ -239,7 +241,7 @@ for (fJ, fC) in ((:+,:add), (:*,:mul))
 
         # Signed Integer
         function ($fJ)(x::BigInterval, c::ClongMax)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_si)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Clong), z, x, c)
             return z
         end
@@ -247,7 +249,7 @@ for (fJ, fC) in ((:+,:add), (:*,:mul))
 
         # Float32/Float64
         function ($fJ)(x::BigInterval, c::CdoubleMax)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_d)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Cdouble), z, x, c)
             return z
         end
@@ -255,7 +257,7 @@ for (fJ, fC) in ((:+,:add), (:*,:mul))
 
         # BigInt
         function ($fJ)(x::BigInterval, c::BigInt)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_z)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInt}), z, x, c)
             return z
         end
@@ -263,7 +265,7 @@ for (fJ, fC) in ((:+,:add), (:*,:mul))
 
          # BigFloat
          function ($fJ)(x::BigInterval, c::BigFloat)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_fr)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigFloat}), z, x, c)
             return z
         end
@@ -275,20 +277,20 @@ end
 for (fJ, fC) in ((:+, :add), (:*, :mul))
     @eval begin
         function ($fJ)(a::BigInterval, b::BigInterval, c::BigInterval)
-            z = BigInterval(;precision=max(mpfi.precision(a),mpfi.precision(b),mpfi.precision(c)))
+            z = BigInterval(;precision=max(MPFI.precision(a),MPFI.precision(b),MPFI.precision(c)))
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, a, b)
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, z, c)
             return z
         end
         function ($fJ)(a::BigInterval, b::BigInterval, c::BigInterval, d::BigInterval)
-            z = BigInterval(;precision=max(mpfi.precision(a),mpfi.precision(b),mpfi.precision(c),mpfi.precision(d)))
+            z = BigInterval(;precision=max(MPFI.precision(a),MPFI.precision(b),MPFI.precision(c),MPFI.precision(d)))
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, a, b)
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, z, c)
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, z, d)
             return z
         end
         function ($fJ)(a::BigInterval, b::BigInterval, c::BigInterval, d::BigInterval, e::BigInterval)
-            z = BigInterval(;precision=max(mpfi.precision(a),mpfi.precision(b),mpfi.precision(c),mpfi.precision(d),mpfi.precision(e)))
+            z = BigInterval(;precision=max(MPFI.precision(a),MPFI.precision(b),MPFI.precision(c),MPFI.precision(d),MPFI.precision(e)))
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, a, b)
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, z, c)
             ccall(($(string(:mpfi_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, z, d)
@@ -310,20 +312,20 @@ end
 for (fJ, fC) in ((:-,:sub), (:/,:div))
     @eval begin 
         function ($fJ)(x::BigInterval, y::BigInterval)
-            z = BigInterval(;precision=max(mpfi.precision(x),mpfi.precision(y)))
+            z = BigInterval(;precision=max(MPFI.precision(x),MPFI.precision(y)))
             ccall(($(string(:mpfi_,fC)),libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), Ref(z), Ref(x), Ref(y))
             return z
         end
 
         # Unsigned Integer
         function ($fJ)(x::BigInterval, c::CulongMax)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_ui)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Culong), z, x, c)
             return z
         end
 
         function ($fJ)(c::CulongMax, x::BigInterval)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_ui_,fC)), libmpfi), Int32, (Ref{BigInterval}, Culong, Ref{BigInterval}), z, c, x)
             return z
         end
@@ -331,13 +333,13 @@ for (fJ, fC) in ((:-,:sub), (:/,:div))
 
         # Signed Integer
         function ($fJ)(x::BigInterval, c::ClongMax)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_si)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Clong), z, x, c)
             return z
         end
 
         function ($fJ)(c::ClongMax, x::BigInterval)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_si_,fC)), libmpfi), Int32, (Ref{BigInterval}, Clong, Ref{BigInterval}), z, c, x)
             return z
         end
@@ -345,13 +347,13 @@ for (fJ, fC) in ((:-,:sub), (:/,:div))
 
         # Float32/Float64
         function ($fJ)(x::BigInterval, c::CdoubleMax)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_d)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Cdouble), z, x, c)
             return z
         end
 
         function ($fJ)(c::CdoubleMax, x::BigInterval)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_d_,fC)), libmpfi), Int32, (Ref{BigInterval}, Cdouble, Ref{BigInterval}), z, c, x)
             return z
         end
@@ -359,26 +361,26 @@ for (fJ, fC) in ((:-,:sub), (:/,:div))
 
         # BigInt
         function ($fJ)(x::BigInterval, c::BigInt)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_z)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInt}), z, x, c)
             return z
         end
 
         function ($fJ)(c::BigInt, x::BigInterval)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_z_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInt}, Ref{BigInterval}), z, c, x)
             return z
         end
 
          # BigFloat
          function ($fJ)(x::BigInterval, c::BigFloat)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_,fC,:_fr)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigFloat}), z, x, c)
             return z
         end
         
         function ($fJ)(x::BigInterval, c::BigFloat)
-            z = BigInterval(;precision=mpfi.precision(x))
+            z = BigInterval(;precision=MPFI.precision(x))
             ccall(($(string(:mpfi_fr_,fC)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigFloat}, Ref{BigInterval}), z, c, x)
             return z
         end
@@ -392,13 +394,13 @@ end
 
 =#
 function -(x::BigInterval)
-    z = BigInterval(;precision=mpfi.precision(x))
+    z = BigInterval(;precision=MPFI.precision(x))
     ccall((:mpfi_neg, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
     return z
 end
 
 function square(x::BigInterval)
-    z = BigInterval(;precision=mpfi.precision(x))
+    z = BigInterval(;precision=MPFI.precision(x))
     ccall((:mpfi_sqr, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
     return z
 end
@@ -415,7 +417,7 @@ for f in (:exp, :exp2, :exp10, :expm1, :cosh, :sinh, :tanh, :sech, :csch, :coth,
 end
 
 function atan(y::BigInterval, x::BigInterval)
-    z = BigInterval(;precision=max(mpfi.precision(x),mpfi.precision(y)))
+    z = BigInterval(;precision=max(MPFI.precision(x),MPFI.precision(y)))
     ccall((:mpfi_atan2, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, y, x)
     return z
 end
