@@ -4,6 +4,7 @@ authors = ["Christina Katsamaki"]
 version = "1.0.0-DEV"
 
 [deps]
+LocalRegistry = "89398ba2-070a-4b16-a995-9893c55d93cf"
 MPFI_jll = "e8b5fb6c-218f-5c08-bc3d-6b0e551bbffd"
 
 [compat]
