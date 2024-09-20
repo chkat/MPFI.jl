@@ -48,10 +48,9 @@ using MPFI_jll: libmpfi
 """
     BigInterval <: Number
 
-Arbitrary precision interval floating point number type.
-"""
+An arbitrary-precision interval floating-point number type, wrapping the C `mpfi` library.
+Use this type to perform operations with intervals that represent ranges of numbers rather than single values.
 
-"""
 BigInterval corresponds to the C-structure:
     typedef struct {
         __mpfr_struct left;
@@ -59,8 +58,6 @@ BigInterval corresponds to the C-structure:
     }__mpfi_struct;
 
 """
-DEFAULT_PRECISION() = precision(BigFloat)
-
 mutable struct BigInterval <: Number
     left_prec::Clong
     left_sign::Cint
@@ -74,6 +71,12 @@ mutable struct BigInterval <: Number
     # I ignore the last fields __d of BigFloats
     # Memory here is managed by MPFI
 
+    """
+    BigInterval(; precision=DEFAULT_PRECISION())
+
+    Creates a new `BigInterval` with the given precision.
+    Precision must be at least 1.
+    """
     function BigInterval(;precision::Integer=DEFAULT_PRECISION())
         precision < 1 && throw(DomainError(precision, "`precision` cannot be less than 1."))
         z = new(zero(Clong), zero(Cint), zero(Clong), C_NULL,
@@ -84,38 +87,54 @@ mutable struct BigInterval <: Number
     end
 end
 
+DEFAULT_PRECISION() = precision(BigFloat)
+
 mpfi_clear(x::BigInterval) = ccall((:mpfi_clear, libmpfi), Cvoid, (Ref{BigInterval},), Ref(x))
 
 zero(::Type{BigInterval}) = BigInterval(0)
 one(::Type{BigInterval}) = BigInterval(1)
 
-"""
-  --------------------------------  Basic access functions  -------------------------------------
-"""
 
-function setprecision(x::BigInterval, prec::Clong)
-    return ccall((:mpfi_set_prec, libmpfi), Clong, (Ref{BigInterval},Clong), x, prec)
-end
+#  --------------------------------  Basic access functions  -------------------------------------
 
+
+#function setprecision(x::BigInterval, prec::Clong)
+# return ccall((:mpfi_set_prec, libmpfi), Clong, (Ref{BigInterval},Clong), x, prec)
+#end
+"""
+    precision(x::BigInterval) -> Clong
+
+Returns the precision of the `BigInterval` `x`.
+"""
 function precision(x::BigInterval)
     return ccall((:mpfi_get_prec, libmpfi), Clong, (Ref{BigInterval},), x)
 end
 
+"""
+    left(x::BigInterval) -> BigFloat
+
+Returns the left bound of the interval as a `BigFloat`.
+"""
 function left(x::BigInterval)
     z = BigFloat()
     ccall((:mpfi_get_left, libmpfi), Int32, (Ref{BigFloat}, Ref{BigInterval}), z, x)
     return z
 end
 
+"""
+    right(x::BigInterval) -> BigFloat
+
+Returns the right bound of the interval as a `BigFloat`.
+"""
 function right(x::BigInterval)
     z = BigFloat()
     ccall((:mpfi_get_right, libmpfi), Int32, (Ref{BigFloat}, Ref{BigInterval}), z, x)
     return z
 end
 
-"""
-  ---------------------------  Conversions & Promotion --------------------------------------------
-"""
+
+#  ---------------------------  Conversions & Promotion --------------------------------------------
+
 function convert(::Type{BigFloat}, x::BigInterval)
     z = BigFloat()
     ccall((:mpfi_get_fr,libmpfi), Cvoid, (Ref{BigFloat}, Ref{BigInterval}), z, x)
@@ -142,9 +161,9 @@ end
 convert(::Type{Integer}, x::BigInterval) = convert(BigInt, x)
 convert(::Type{<:AbstractFloat}, x::BigInterval) = convert(BigFloat, x)
 
-"""
-  --------------------------------  Assignment functions  -------------------------------------
-"""
+
+#  --------------------------------  Assignment functions  -------------------------------------
+
 BigInterval(x::BigInterval) = x
 
 function duplicate(x::BigInterval)
@@ -218,9 +237,9 @@ BigInterval(x::Rational;precision::Integer=DEFAULT_PRECISION()) = BigInterval(nu
 
 
 
-"""
-  --------------------------------  Basic arithmetic operations  -------------------------------------
-"""
+
+#  --------------------------------  Basic arithmetic operations  -------------------------------------
+
 
 # Basic commutative arithmetic operations between intervals
 for (fJ, fC) in ((:+,:add), (:*,:mul))
@@ -409,7 +428,7 @@ end
 for f in (:exp, :exp2, :exp10, :expm1, :cosh, :sinh, :tanh, :sech, :csch, :coth, :inv,
      :sqrt, :cbrt, :abs, :rec_sqrt, :log, :log2, :log10, :log1p, :sin, :cos, :tan, :sec,
     :csc, :cot, :acos, :asin, :atan, :acosh, :asinh, :atanh)
-    @eval function $f(x::BigInterval;precision::Integer=DEFAULT_PRECISION())
+    @eval function $f(x::BigInterval;precision::Integer=MPFI.precision(x))
         z = BigInterval(;precision=precision)
         ccall(($(string(:mpfi_,f)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
         return z
@@ -462,9 +481,9 @@ function convert(::Type{BigInterval}, ::Irrational{:ℯ};precision::Integer=DEFA
 end
 
 
-"""
-  --------------------------------  Various useful interval functions  -------------------------------------
-"""
+
+# --------------------------------  Various useful interval functions  -------------------------------------
+
 
 for f in (:diam_abs, :diam_rel, :diam, :mag, :mig, :mid)
     @eval function $(f)(x::BigInterval;precision::Integer=DEFAULT_PRECISION())
@@ -495,9 +514,9 @@ function hypot(x::BigInterval, y::BigInterval;precision::Integer=DEFAULT_PRECISI
 end
 
 
-"""
-  --------------------------------  Utility functions  -------------------------------------
-"""
+
+#  --------------------------------  Utility functions  -------------------------------------
+
 # checks if there is intersection 
 # when x == 0 it works as has_zero
 ==(x::BigInterval, y::BigInterval) = left(x)==left(y) && right(x)==right(y) #ccall((:mpfi_cmp_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), Ref(x), Ref(y)) == 0
@@ -537,9 +556,9 @@ cmp(x::BigFloat, y::BigInterval) = -cmp(y,x)
 
 
 
-"""
-  ---------------------------------------------  Flags  ------------------------------------------------
-"""
+
+#  ---------------------------------------------  Flags  ------------------------------------------------
+
 function isbounded(x::BigInterval)
     return ccall((:mpfi_bounded_p, libmpfi), Int32, (Ref{BigInterval},), x) != 0
 end
@@ -570,9 +589,9 @@ function sign(x::BigInterval)
 end
 
 
-"""
-  -------------------------------------  Set operations  ---------------------------------------
-"""
+
+# -------------------------------------  Set operations  ---------------------------------------
+
 
 function is_inside(x::BigInterval, int::BigInterval)
     return ccall((:mpfi_is_inside, :libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, int) > 0
@@ -622,9 +641,9 @@ end
 
 
 
-"""
-  --------------------------------  Printing  -------------------------------------
-"""
+
+#  --------------------------------  Printing  -------------------------------------
+
 
 
 function string(x::BigInterval)
