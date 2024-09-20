@@ -1,16 +1,16 @@
-# MPFI Module Documentation
+# MPFI.jl
 
 This module provides support for arbitrary precision interval arithmetic using the MPFI library. The `BigInterval` type represents an interval with arbitrary precision floating-point endpoints.
 
 ## Installation
    
-To use the `mpfi` module, you need to have the MPFI library installed on your system. Ensure that the shared library is available and set the `LIB_PATH` variable to point to the location of your shared library.
+To use the `MPFI` module, you need to have acces to PACE Julia Registry and to have activated it for your Julia installation.
+See [here](https://pace.gitlabpages.inria.fr/software/) for instructions
   
 
 
 ```julia
-include("../src/mpfi.jl")
-using .mpfi
+using MPFI
 ```
 
 ## Basic Usage
@@ -84,10 +84,8 @@ Note that the default precision for `BigFloat` can be changed through:
 ```julia 
 setprecision(128)
 ```
-and for a specific `BigInterval` by using the function:
-```julia 
-setprecision(x::BigInterval, precision::Integer)
-```
+For a specific `BigInterval` the precision cannot be changed after its creation. 
+
 
 ### Basic access functions
 

@@ -84,10 +84,8 @@ Note that the default precision for `BigFloat` can be changed through:
 ```julia 
 setprecision(128)
 ```
-and for a specific `BigInterval` by using the function:
-```julia 
-setprecision(x::BigInterval, precision::Integer)
-```
+For a specific `BigInterval` the precision cannot be changed after its creation. 
+
 
 ### Basic access functions
 

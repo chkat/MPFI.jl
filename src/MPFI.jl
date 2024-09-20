@@ -7,7 +7,7 @@ export BigInterval, precision, left, right, has_zero, isbounded
 import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._string, MPFR, exp, exp2, 
     exp10, expm1, cosh, sinh, tanh, sech, csch, coth, inv, sqrt, cbrt, abs, log, log2, 
     log10, log1p, sin, cos, tan, sec, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, 
-    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf
+    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal
 
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 
@@ -164,9 +164,10 @@ convert(::Type{<:AbstractFloat}, x::BigInterval) = convert(BigFloat, x)
 
 #  --------------------------------  Assignment functions  -------------------------------------
 
+# Default 
 BigInterval(x::BigInterval) = x
 
-function duplicate(x::BigInterval)
+function deepcopy_internal(x::BigInterval, stackdict::IdDict)
     z = BigInterval(;precision=precision(x))
     ccall((:mpfi_set, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
     return z
@@ -733,6 +734,8 @@ end
 function midpoints(x::Vector{BigInterval})::Vector{BigFloat}
     return [(left(x[i])+right(x[i]))/2 for i in 1:length(x)]
 end
+
+@doc read(joinpath(dirname(@__DIR__), "README.md"), String) MPFI
 
 end
 
