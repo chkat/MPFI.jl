@@ -1,7 +1,7 @@
 name = "MPFI"
 uuid = "e50a78b8-6e2f-482e-b7c3-776aa2235d1a"
 authors = ["Christina Katsamaki"]
-version = "0.0.1-DEV"
+version = "1.0.1-DEV"
 
 [deps]
 LocalRegistry = "89398ba2-070a-4b16-a995-9893c55d93cf"
