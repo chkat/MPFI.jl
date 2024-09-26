@@ -116,7 +116,7 @@ end
 Returns the left bound of the interval as a `BigFloat`.
 """
 function left(x::BigInterval)
-    z = BigFloat()
+    z = BigFloat(;precision=precision(x))
     ccall((:mpfi_get_left, libmpfi), Int32, (Ref{BigFloat}, Ref{BigInterval}), z, x)
     return z
 end
@@ -127,7 +127,7 @@ end
 Returns the right bound of the interval as a `BigFloat`.
 """
 function right(x::BigInterval)
-    z = BigFloat()
+    z = BigFloat(;precision=precision(x))
     ccall((:mpfi_get_right, libmpfi), Int32, (Ref{BigFloat}, Ref{BigInterval}), z, x)
     return z
 end
@@ -137,6 +137,7 @@ end
 
 function convert(::Type{BigFloat}, x::BigInterval)
     z = BigFloat(;precision=precision(x))
+    @info "" precision(z)
     ccall((:mpfi_get_fr,libmpfi), Cvoid, (Ref{BigFloat}, Ref{BigInterval}), z, x)
     return z
 end
@@ -195,13 +196,13 @@ end
 # convert to BigInterval by passing a BigInt or a BigFloat
 for (fJ, fC) in ((:z,:BigInt), (:fr,:BigFloat))
     @eval begin
-        function BigInterval(x::($fC);precision::Integer=DEFAULT_PRECISION())
+        function BigInterval(x::($fC);precision::Integer=precision(x))
             z = BigInterval(;precision=precision)
             ccall(($(string(:mpfi_set_,fJ)), libmpfi), Int32, (Ref{BigInterval}, Ref{$fC}), Ref(z), Ref(x))
             return z
         end
         # Dyadic constructors
-        function BigInterval(x::($fC), y::($fC);precision::Integer=DEFAULT_PRECISION())
+        function BigInterval(x::($fC), y::($fC);precision::Integer=precision(x))
             z = BigInterval(;precision=precision)
             ccall(($(string(:mpfi_interv_,fJ)), libmpfi), Int32, (Ref{BigInterval}, Ref{$fC}, Ref{$fC}), Ref(z), Ref(x), Ref(y))
             return z
