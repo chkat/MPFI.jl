@@ -136,7 +136,7 @@ end
 #  ---------------------------  Conversions & Promotion --------------------------------------------
 
 function convert(::Type{BigFloat}, x::BigInterval)
-    z = BigFloat()
+    z = BigFloat(;precision=precision(x))
     ccall((:mpfi_get_fr,libmpfi), Cvoid, (Ref{BigFloat}, Ref{BigInterval}), z, x)
     return z
 end
