@@ -29,6 +29,8 @@ stages:
 #     - main
 
 pages:
+  tags:
+    - ci.inria.fr
   image: julia:1.10
   stage: deploy
   script:
