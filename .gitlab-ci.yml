@@ -35,6 +35,7 @@ pages:
   stage: deploy
   script:
     - apt-get update -qq && apt-get install -y git # needed by Documenter
+    - julia -e 'versioninfo()'
     - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("MPFI");' # rebuild Julia (can be put somewhere else I'm sure
     - julia -e 'using Pkg; import MPFI; Pkg.add("Documenter")' # install Documenter
     - julia --color=yes docs/make.jl # make documentation
