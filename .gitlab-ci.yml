@@ -1,3 +1,5 @@
+image: registry.gitlab.inria.fr/navarop/julia:latest
+
 stages:
   - deploy # mandatory name for the stage to GitLab detect it's a Pages deployment
 
@@ -31,12 +33,18 @@ stages:
 pages:
   tags:
     - ci.inria.fr
-  image: julia:1.10
   stage: deploy
   script:
-    - apt-get update -qq && apt-get install -y git # needed by Documenter
+    #- apt-get update -qq && apt-get install -y git # needed by Documenter
+    # - pwd
+    # - which julia
+    # - cd /usr/local/julia/bin
+    # - ls -a 
+    # - julia
+    #- julia --project=@. -e "import Pkg; Pkg.build()"
     - pwd
-    - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("MPFI");' # rebuild Julia (can be put somewhere else I'm sure
+    - ls -a
+    - julia -e 'using Pkg; Pkg.add(path=pwd())' # rebuild Julia (can be put somewhere else I'm sure
     - julia -e 'using Pkg; import MPFI; Pkg.add("Documenter")' # install Documenter
     - julia --color=yes docs/make.jl # make documentation
     - mv docs/build public # move to the directory picked up by Gitlab pages
@@ -45,5 +53,3 @@ pages:
       - public
   only:
   - main
-
-
