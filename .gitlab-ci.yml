@@ -44,7 +44,7 @@ pages:
     #- julia --project=@. -e "import Pkg; Pkg.build()"
     - pwd
     - ls -a
-    - julia -e 'using Pkg; Pkg.add(path=pwd())' # rebuild Julia (can be put somewhere else I'm sure
+    - julia -e 'using Pkg; Pkg.develop(path=pwd())' # rebuild Julia (can be put somewhere else I'm sure
     - julia -e 'using Pkg; import MPFI; Pkg.add("Documenter")' # install Documenter
     - julia --color=yes docs/make.jl # make documentation
     - mv docs/build public # move to the directory picked up by Gitlab pages
