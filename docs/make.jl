@@ -4,44 +4,32 @@ using MPFI
 
 About = "Introduction" => "index.md"
 
+BasicUsage = "Basic Usage" => "basic_usage.md"
+
+UsingWithDynamicPolynomials = "Using with DynamicPolynomials" => "using_with_dp.md"
+
 Functions = "Functions" => "functions.md"
-# GettingStarted = "gettingstarted.md"
 
-# UserGuide = "User's guide" => [
-#         "interface.md",
-#         operations
-#     ]
-
-# DevGuide = "Developer's guide" => [
-#         "wrappers.md"
-#     ]
-
-# Examples = "Examples" => [
-#         "examples/flux.md"
-#     ]
-
-# License = "License" => "license.md"
 
 PAGES = [
-    About,
+    About, 
+    BasicUsage,
+    UsingWithDynamicPolynomials,
     Functions
 ]
 
 makedocs(
-    sitename = "MPFI",
-    format = Documenter.HTML(),
+    sitename = "MPFI.jl",
+    format = Documenter.HTML(; prettyurls = get(ENV, "CI", nothing) == "true"),
     modules = [MPFI],
     remotes = nothing,
     checkdocs = :exports,
     pages = PAGES
 )
 
-# Documenter can also automatically deploy documentation to gh-pages.
-# See "Hosting Documentation" and deploydocs() in the Documenter manual
-# for more information.
-
 deploydocs(
-    repo = "https://gitlab.inria.fr/ckatsama/mpfi.jl"
+    repo = "https://gitlab.inria.fr/ckatsama/mpfi.jl",
+    versions = ["dev" => "main"]
 )
 
 

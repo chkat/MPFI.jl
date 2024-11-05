@@ -11,6 +11,7 @@ import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._str
 
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 
+using DocStringExtensions
 #=
 From GMP.jl:
 if Clong == Int32
