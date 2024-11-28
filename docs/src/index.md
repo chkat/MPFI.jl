@@ -1,10 +1,18 @@
 # MPFI.jl
 
-`MPFI`is a package that provides support for arbitrary precision interval arithmetic using the MPFI library. The `BigInterval` type represents an interval with arbitrary precision floating-point endpoints.
+`MPFI.jl` is a Julia wrapper for the [MPFI](https://perso.ens-lyon.fr/nathalie.revol/software.html) (Multiple Precision Floating-Point Interval) C library, which provides interval arithmetic with arbitrary precision, based on [MPFR](https://www.mpfr.org/). This package enables Julia users to perform high-precision interval computations seamlessly.
+
+## Features
+
+- **Arbitrary Precision**: Perform interval arithmetic with precision limited only by available memory, thanks to MPFI’s reliance on MPFR.  
+- **Compatibility**: Ideal for users porting code from other languages that already use MPFI or MPFR.  
+
+- **Validated Numerical Computations**: Ensure reliable bounds for computations to maintain rigor in scientific and engineering applications.  
+- **DynamicPolynomials Integration**: You can use `MPFI.jl` in combination with the `DynamicPolynomials` package to create polynomials with interval coefficients, differentiate them, and evaluate them at other intervals.
 
 ## Installation
    
-To use the `MPFI` package, you need to have acces to PACE Julia Registry and to have activated it for your Julia installation.
+To use the `MPFI.jl` package, you need to have acces to PACE Julia Registry and to have activated it for your Julia installation.
 See [here](https://pace.gitlabpages.inria.fr/software/) for instructions
   
 
@@ -13,7 +21,45 @@ See [here](https://pace.gitlabpages.inria.fr/software/) for instructions
 using MPFI
 ```
 
+## Quick Start
 
+Here’s a simple example to get started with `MPFI.jl`:
+
+```julia
+using MPFI
+
+# Create intervals with arbitrary precision
+a = MPFI.Interval("1.0", "2.0")  # Interval [1.0, 2.0]
+b = MPFI.Interval("0.5", "1.5")  # Interval [0.5, 1.5]
+
+# Perform basic interval arithmetic
+sum = a + b        # [1.5, 3.5]
+product = a * b    # [0.5, 3.0]
+difference = a - b # [0.5, 1.5]
+
+# Check interval bounds
+println("Lower bound of sum: ", MPFI.lower(sum))
+println("Upper bound of sum: ", MPFI.upper(sum))
+
+# Check if intervals overlap
+println("Intervals overlap? ", MPFI.overlap(a, b))
+````
+
+Output:
+```
+Lower bound of sum: 1.5
+Upper bound of sum: 3.5
+Intervals overlap? true
+````
+This example demonstrates basic interval arithmetic operations, boundary extraction, and overlap checking. For more advanced use cases, refer to the documentation.
+
+## The Julia Interval Arithmetic Ecosystem
+
+For users migrating code that relies on MPFI or MPFR, `MPFI.jl` provides compatibility while leveraging MPFI's high-precision interval arithmetic. For other use cases, there are several other packages available in the Julia ecosystem:
+
+- [Intervals.jl](https://invenia.github.io/Intervals.jl/stable/)
+- [IntervalArithmetic.jl](https://juliaintervals.github.io/IntervalArithmetic.jl/stable/)
+- [MPFI.jl](https://github.com/JuliaIntervals/MPFI.jl) (GitHub) Package: An older package wrapping MPFI, but it is not maintained and lacks full functionality.
 
 
 
