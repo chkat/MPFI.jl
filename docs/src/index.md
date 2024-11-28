@@ -43,7 +43,7 @@ println("Upper bound of sum: ", MPFI.upper(sum))
 
 # Check if intervals overlap
 println("Intervals overlap? ", MPFI.overlap(a, b))
-````
+```
 
 **Output**:
 

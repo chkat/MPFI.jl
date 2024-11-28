@@ -2,19 +2,22 @@ using Documenter
 using MPFI
 
 
+# Individual files
 About = "Introduction" => "index.md"
-
+HowToIntro = "How-To guides" => "how_to_guides.md" 
 BasicUsage = "Basic Usage" => "basic_usage.md"
-
 UsingWithDynamicPolynomials = "Using with DynamicPolynomials" => "using_with_dp.md"
-
 Functions = "Functions" => "functions.md"
+
+HowTo = HowToIntro => [
+    BasicUsage,
+    UsingWithDynamicPolynomials
+]
 
 
 PAGES = [
     About, 
-    BasicUsage,
-    UsingWithDynamicPolynomials,
+    HowTo,
     Functions
 ]
 
