@@ -4,11 +4,11 @@
 
 ## Features
 
-- **Arbitrary Precision**: Perform interval arithmetic with precision limited only by available memory, thanks to MPFI’s reliance on MPFR.  
-- **Compatibility**: Ideal for users porting code from other languages that already use MPFI or MPFR.  
+- *Arbitrary Precision*: Perform interval arithmetic with precision limited only by available memory, thanks to MPFI’s reliance on MPFR.  
+- *Compatibility*: Ideal for users porting code from other languages that already use MPFI or MPFR.  
 
-- **Validated Numerical Computations**: Ensure reliable bounds for computations to maintain rigor in scientific and engineering applications.  
-- **DynamicPolynomials Integration**: You can use `MPFI.jl` in combination with the `DynamicPolynomials` package to create polynomials with interval coefficients, differentiate them, and evaluate them at other intervals.
+- *Validated Numerical Computations*: Ensure reliable bounds for computations to maintain rigor in scientific and engineering applications.  
+- *DynamicPolynomials Integration*: You can use `MPFI.jl` in combination with the `DynamicPolynomials` package to create polynomials with interval coefficients, differentiate them, and evaluate them at other intervals.
 
 ## Installation
    
@@ -45,12 +45,14 @@ println("Upper bound of sum: ", MPFI.upper(sum))
 println("Intervals overlap? ", MPFI.overlap(a, b))
 ````
 
-Output:
+**Output**:
+
 ```
 Lower bound of sum: 1.5
 Upper bound of sum: 3.5
 Intervals overlap? true
-````
+```
+
 This example demonstrates basic interval arithmetic operations, boundary extraction, and overlap checking. For more advanced use cases, refer to the documentation.
 
 ## The Julia Interval Arithmetic Ecosystem
