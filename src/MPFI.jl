@@ -49,7 +49,7 @@ using MPFI_jll: libmpfi
 """
     BigInterval <: Number
 
-An arbitrary-precision interval floating-point number type, wrapping the C `mpfi` library.
+An arbitrary-precision interval floating-point number type, wrapping the C `MPFI` library.
 Use this type to perform operations with intervals that represent ranges of numbers rather than single values.
 
 BigInterval corresponds to the C-structure:
@@ -596,10 +596,36 @@ end
 # -------------------------------------  Set operations  ---------------------------------------
 
 
+"""
+    is_inside(x::BigInterval, int::BigInterval) -> Bool
+
+Checks if the interval `x` is entirely contained within the interval `int`.
+
+# Arguments
+- `x::BigInterval`: The interval to test for containment.
+- `int::BigInterval`: The interval to check containment in.
+
+# Returns
+- `Bool`: `true` if `x` is contained in `int`, otherwise `false`.
+"""
 function is_inside(x::BigInterval, int::BigInterval)
-    return ccall((:mpfi_is_inside, :libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, int) > 0
+    return ccall((:mpfi_is_inside, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, int) > 0
 end
 
+
+"""
+    is_inside(x::T, int::BigInterval) where T <: Union{Clong, Culong, Cdouble, BigInt, BigFloat}
+
+Checks if the scalar `x` is within the interval `int`.
+
+# Arguments
+- `x::T`: A scalar of type `Clong`, `Culong`, `Cdouble`, `BigInt`, or `BigFloat`.
+- `int::BigInterval`: The interval to test against.
+
+# Returns
+- `Bool`: `true` if `x` is inside `int`, otherwise `false`.
+"""
+function is_inside end  # Attach the docstring to the generic function
 
 for (fJ, fC) in ((:si,:Clong), (:ui,:Culong), (:d,:Cdouble))
     @eval begin
@@ -608,7 +634,6 @@ for (fJ, fC) in ((:si,:Clong), (:ui,:Culong), (:d,:Cdouble))
         end
     end
 end
-
 for (fJ, fC) in ((:z,:BigInt), (:fr,:BigFloat))
     @eval begin
         function is_inside(x::($fC), int::BigInterval)
@@ -616,6 +641,37 @@ for (fJ, fC) in ((:z,:BigInt), (:fr,:BigFloat))
         end
     end
 end
+
+
+"""
+    intersect(x::BigInterval, y::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigInterval
+
+Computes the intersection of two intervals `x` and `y`.
+
+# Arguments
+- `x::BigInterval`: The first interval.
+- `y::BigInterval`: The second interval.
+- `precision::Integer` (optional): The precision of the resulting interval. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+- `BigInterval`: The intersection of `x` and `y`. If the intervals do not intersect, the result is an empty interval.
+"""
+function intersect end # Attach the docstring 
+
+"""
+    union(x::BigInterval, y::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigInterval
+
+Computes the union of two intervals `x` and `y`.
+
+# Arguments
+- `x::BigInterval`: The first interval.
+- `y::BigInterval`: The second interval.
+- `precision::Integer` (optional): The precision of the resulting interval. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+- `BigInterval`: The union of `x` and `y`.
+"""
+function union end # Attach the docstring 
 
 
 for f in (:intersect, :union)
@@ -628,12 +684,39 @@ for f in (:intersect, :union)
     end
 end
 
+"""
+    bisect(x::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> Tuple{BigInterval, BigInterval}
+
+Bisects the interval `x` into two subintervals of approximately equal width.
+
+# Arguments
+- `x::BigInterval`: The interval to bisect.
+- `precision::Integer` (optional): The precision of the resulting subintervals. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+- `Tuple{BigInterval, BigInterval}`: Two subintervals that partition the input interval.
+"""
 function bisect(x::BigInterval;precision::Integer=DEFAULT_PRECISION())
     z1, z2 = BigInterval(;precision=precision), BigInterval(;precision=precision)
     ccall((:mpfi_bisect, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z1, z2, x)
     return z1, z2
 end
 
+"""
+    blow(x::BigInterval, y::Float64; precision::Integer=DEFAULT_PRECISION()) -> BigInterval
+
+Creates a new interval by expanding the radius of the input interval `x` by a factor of `(1 + y)`, while keeping its center unchanged. 
+
+**Note:** The resulting interval may be overestimated.
+
+# Arguments
+- `x::BigInterval`: The input interval to expand. 
+- `y::Float64`: The factor to expand the radius by, added as `(1 + y)`.
+- `precision::Integer`: (Optional) The precision for the resulting interval. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+- `BigInterval`: A new interval with the expanded radius.
+"""
 function blow(x::BigInterval, y::Float64;precision::Integer=DEFAULT_PRECISION())
     z = BigInterval(;precision=precision)
     ccall((:mpfi_blow, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Cdouble), z, x, y)
