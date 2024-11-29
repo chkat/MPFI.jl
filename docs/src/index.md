@@ -52,6 +52,16 @@ Intersection of intervals: [1.0, 1.5]
 
 julia> println("Union of intervals: ", MPFI.union(a, b))
 Union of intervals: [0.5, 2.0]
+
+julia> c = BigInterval(1//3;precision=14) # Define an interval by specifying its precision
+[0.333312, 0.333344]
+julia> precision(c)
+256
+
+julia> c = BigInterval(1//3) # Define an interval with the default precision of BigFloat
+[0.3333333333333333333333333333333333333333333333333333333333333333333333333333304, 0.3333333333333333333333333333333333333333333333333333333333333333333333333333348]
+julia> precision(c)
+256
 ```
 
 
