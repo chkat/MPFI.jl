@@ -17,43 +17,44 @@ See [here](https://pace.gitlabpages.inria.fr/software/) for instructions
   
 
 
-```julia-repl
-using MPFI
+```julia-
+julia> using MPFI
 ```
 
 ## Quick Start
 
 Here’s a simple example to get started with `MPFI.jl`:
 
-```julia-repl
-using MPFI
+```julia-REPL
+julia> using MPFI
 
-# Create intervals with arbitrary precision
-a = MPFI.Interval("1.0", "2.0")  # Interval [1.0, 2.0]
-b = MPFI.Interval("0.5", "1.5")  # Interval [0.5, 1.5]
+julia> a = BigInterval(1.0, 2.0)  
+[1.0, 2.0]
+julia> b = BigInterval(0.5, 1.5) 
+[0.5, 1.5]
 
-# Perform basic interval arithmetic
-sum = a + b        # [1.5, 3.5]
-product = a * b    # [0.5, 3.0]
-difference = a - b # [0.5, 1.5]
+julia> sum = a + b  
+[1.5, 3.5]
+julia> product = a * b 
+[0.5, 3.0]
+julia> difference = a - b
+[-0.5, 1.5]
 
-# Check interval bounds
-println("Lower bound of sum: ", MPFI.lower(sum))
-println("Upper bound of sum: ", MPFI.upper(sum))
 
-# Check if intervals overlap
-println("Intervals overlap? ", MPFI.overlap(a, b))
-```
-
-**Output**:
-
-```
+julia> println("Lower bound of sum: ", left(sum))
 Lower bound of sum: 1.5
+
+julia> println("Upper bound of sum: ", right(sum))
 Upper bound of sum: 3.5
-Intervals overlap? true
+
+julia> println("Intersection of intervals: ", MPFI.intersect(a, b))
+Intersection of intervals: [1.0, 1.5]
+
+julia> println("Union of intervals: ", MPFI.union(a, b))
+Union of intervals: [0.5, 2.0]
 ```
 
-This example demonstrates basic interval arithmetic operations, boundary extraction, and overlap checking. For more advanced use cases, refer to the documentation.
+
 
 ## The Julia Interval Arithmetic Ecosystem
 
