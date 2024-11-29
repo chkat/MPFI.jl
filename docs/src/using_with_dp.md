@@ -75,6 +75,8 @@ subs(p, x => 3) = ([32.5, 33.5]) + ([72.0, 81.0])y⁴
 subs(p, x => BigInterval(1 // 3)) = ([1.38879, 2.38917]) + ([0.888732, 1.00013])y⁴
 ```
 
+!!! warning For consistent results, it is recommended to use the same precision for the evaluation point and the coefficients. Additionally, ensure that the global MPFR precision is set appropriately beforehand to maintain precision consistency across computations.
+
 
 
 
