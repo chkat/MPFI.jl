@@ -1,50 +1,68 @@
 image: registry.gitlab.inria.fr/navarop/julia:latest
 
 stages:
+  - test
   - deploy # mandatory name for the stage to GitLab detect it's a Pages deployment
 
+linux:
+  stage: test  
+  tags:
+    - julia
+    - linux
+  variables:
+    JULIA_DEPOT_PATH: "/builds/.julia"
+  script:
+    - whoami
+    # - ssh-keyscan gitlab.inria.fr >> /root/.ssh/known_hosts
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_ed25519
+    - ssh -T git@gitlab.inria.fr
+    - export PATH="$PATH:/builds/julia-1.11.1/bin"  # Add julia to the path
+    - julia --version
+    - julia -e 'using Pkg; Pkg.status()'  
+    - julia -e 'using Pkg; Pkg.Registry.status()'  
+    - julia --project=. -e 'using Pkg; Pkg.status()'  
+    - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
+    - julia --project=. -e 'using Pkg; Pkg.status()'   
+    - julia --project=. test/runtests.jl          # Run tests 
+  
 
-# pages:
-#   tags:
-#     - ci.inria.fr
-#   stage: deploy
-#   image: python:alpine
-#   before_script:
-#     - apk add git
-#     - pip install mkdocs
-#     # Add your custom theme if not inside a theme_dir
-#     # (https://github.com/mkdocs/mkdocs/wiki/MkDocs-Themes)
-#     - pip install mkdocs-material
-#     # Add your plugins
-#     - pip install pygments
-#     - pip install pymdown-extensions
-#     - pip install mkdocs-awesome-pages-plugin
-#     - pip install pyembed-markdown
-#     - pip install mkdocs-git-revision-date-plugin
-#     - pip install plantuml-markdown
-#   script:
-#     - mkdocs build
-#   artifacts:
-#     paths:
-#       - public
-#   only:
-#     - main
+ 
+# # windows tests
+windows:
+  stage: test
+  tags:
+    - win
+  script:
+    - whoami
+    - echo $Env:PATH
+    - Start-Service ssh-agent
+    - ssh -T git@gitlab.inria.fr
+    - julia --version
+    - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
+    - julia -e 'using Pkg; Pkg.status()'  # Install dependencies
+    - julia --project=. test/runtests.jl"  # Run tests 
+
+# macOS tests
+macos:
+  stage: test
+  tags:
+    - macos-catalina
+  script:
+    - whoami
+    - . /Users/ci/.bashrc
+    - ssh -T git@gitlab.inria.fr
+    - julia --version
+    - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
+    - julia --project=. test/runtests.jl          # Run tests 
+   
 
 pages:
   tags:
     - ci.inria.fr
   stage: deploy
   script:
-    #- apt-get update -qq && apt-get install -y git # needed by Documenter
-    # - pwd
-    # - which julia
-    # - cd /usr/local/julia/bin
-    # - ls -a 
-    # - julia
-    #- julia --project=@. -e "import Pkg; Pkg.build()"
-    - pwd
-    - ls -a
-    - julia -e 'using Pkg; Pkg.develop(path=pwd())' # rebuild Julia (can be put somewhere else I'm sure
+    - julia -e 'using Pkg; Pkg.develop(path=pwd())' 
     - julia -e 'using Pkg; import MPFI; Pkg.add("Documenter")' # install Documenter
     - julia --color=yes docs/make.jl # make documentation
     - mv docs/build public # move to the directory picked up by Gitlab pages
