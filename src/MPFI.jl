@@ -133,6 +133,11 @@ function right(x::BigInterval)
     return z
 end
 
+function sign(x::BigInterval)
+    c = cmp(x, 0)
+    (c == 0 || isnan(x)) && return x
+    return c < 0 ? -one(x) : one(x)
+end
 
 #  ---------------------------  Conversions & Promotion --------------------------------------------
 
@@ -560,41 +565,96 @@ cmp(x::BigFloat, y::BigInterval) = -cmp(y,x)
 
 
 
-#  ---------------------------------------------  Flags  ------------------------------------------------
+#  ----------------------------------------  Boolean functions  ------------------------------------------
 
+"""
+    isbounded(x::BigInterval) -> Bool
+
+Checks if the interval `x` is bounded, meaning it has finite lower and upper bounds.
+
+# Arguments
+- `x::BigInterval`: The interval to check.
+
+# Returns
+- `Bool`: `true` if `x` is bounded, `false` otherwise.
+"""
 function isbounded(x::BigInterval)
     return ccall((:mpfi_bounded_p, libmpfi), Int32, (Ref{BigInterval},), x) != 0
 end
 
+"""
+    isempty(x::BigInterval) -> Bool
+
+Checks if the interval `x` is empty, meaning that no values have been assigned to its endpoints.
+Identical to isnan(x::BigInterval).
+
+# Arguments
+- `x::BigInterval`: The interval to check.
+
+# Returns
+- `Bool`: `true` if `x` is empty, `false` otherwise.
+"""
 function isempty(x::BigInterval)
     return ccall((:mpfi_is_empty, libmpfi), Int32, (Ref{BigInterval},), x) != 0
 end
 
+"""
+    isnan(x::BigInterval) -> Bool
+
+Checks if the interval `x` is NaN (Not a Number).
+
+# Arguments
+- `x::BigInterval`: The interval to check.
+
+# Returns
+- `Bool`: `true` if `x` is NaN, `false` otherwise.
+"""
 function isnan(x::BigInterval)
     return ccall((:mpfi_nan_p, libmpfi), Int32, (Ref{BigInterval},), x) != 0
 end
 
+"""
+    isinf(x::BigInterval) -> Bool
+
+Checks if the interval `x` contains infinite values.
+
+# Arguments
+- `x::BigInterval`: The interval to check.
+
+# Returns
+- `Bool`: `true` if `x` contains infinite values, `false` otherwise.
+"""
 function isinf(x::BigInterval)
     return ccall((:mpfi_inf_p, libmpfi), Int32, (Ref{BigInterval},), x) != 0
 end
 
+"""
+    iszero(x::BigInterval) -> Bool
 
+Checks if the interval `x` is zero, i.e., both the lower and upper bounds are zero.
+
+# Arguments
+- `x::BigInterval`: The interval to check.
+
+# Returns
+- `Bool`: `true` if `x` is zero, `false` otherwise.
+"""
 iszero(x::BigInterval) = left(x)==0 && right(x)==0
 
+"""
+    has_zero(x::BigInterval) -> Bool
+
+Checks if the interval `x` contains zero, i.e., the interval includes zero within its bounds.
+
+# Arguments
+- `x::BigInterval`: The interval to check.
+
+# Returns
+- `Bool`: `true` if `x` contains zero, `false` otherwise.
+"""
 function has_zero(x::BigInterval)
     return ccall((:mpfi_has_zero, libmpfi), Int32, (Ref{BigInterval},), x) != 0
 end
-
-function sign(x::BigInterval)
-    c = cmp(x, 0)
-    (c == 0 || isnan(x)) && return x
-    return c < 0 ? -one(x) : one(x)
-end
-
-
-
-# -------------------------------------  Set operations  ---------------------------------------
-
 
 """
     is_inside(x::BigInterval, int::BigInterval) -> Bool
@@ -641,6 +701,11 @@ for (fJ, fC) in ((:z,:BigInt), (:fr,:BigFloat))
         end
     end
 end
+
+
+
+
+# -------------------------------------  Set operations  ---------------------------------------
 
 
 """

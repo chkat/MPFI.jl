@@ -6,14 +6,23 @@ MPFI.BigInterval
 MPFI.left
 MPFI.right
 ```
-# other functions:
+# Boolean functions
+
+```@docs
+MPFI.isbounded
+MPfi.isempty
+MPFI.isnan
+MPFI.isinf
+MPFI.iszero
+MPFI.has_zero
+MPFI.is_inside(::BigInterval, ::BigInterval)
+MPFI.is_inside
+``` 
 
 
 # Set Operations
 
 ```@docs
-MPFI.is_inside(::BigInterval, ::BigInterval)
-MPFI.is_inside
 MPFI.intersect
 MPFI.union
 MPFI.bisect
