@@ -11,7 +11,7 @@ To use MPFI.jl with DynamicPolynomials.jl, follow these steps:
 
 Here’s an example:
 
-```julia
+```julia-repl
 using DynamicPolynomials, MPFI
 
 # Define polynomial variables
@@ -29,7 +29,7 @@ $$ ([8.0, 9.0])x^2y^4 + ([3.5, 3.5])x^2 + ([1.0, 2.0]) $$
 `MPFI.jl` is compatible with the usual polynomial operations provided by `DynamicPolynomials.jl`, including addition, multiplication, differentiation, and substitution. Notably, it is possible to evaluate polynomials at `BigInterval` values.
 
 ### **Addition**  
-```julia
+```julia-repl
 @show p + p 
 ```
 **Output:**
@@ -38,7 +38,7 @@ p + p = ([2.0, 4.0]) + ([7.0, 7.0])x² + ([16.0, 18.0])x²y⁴
 ``` 
 
 ### **Multiplication**  
-```julia
+```julia-repl
 @show p * p  
 ```
 
@@ -48,7 +48,7 @@ p * p = ([1.0, 4.0]) + ([7.0, 14.0])x² + ([12.25, 12.25])x⁴ + ([16.0, 36.0])x
 ``` 
 
 ### **Differentiation**  
-```julia
+```julia-repl
 @show differentiate(p, x)  # Differentiate with respect to x
 ```
 **Output:**
@@ -58,7 +58,7 @@ differentiate(p, x) = ([7.0, 7.0])x + ([16.0, 18.0])xy⁴
 
 ### **Substitution**  
 - Substitute $x$ with a number. The precision of the coefficients is unchanged.
-```julia
+```julia-repl
 @show subs(p, x => 3)  
 ```
 **Output:**
@@ -67,7 +67,7 @@ subs(p, x => 3) = ([32.5, 33.5]) + ([72.0, 81.0])y⁴
 ```
 - Substitute x with an interval. The precision of the output coefficients is the maximum of default precision, the current precision of the coefficients and the precision of the evaluation point (if specified). 
 
-```julia
+```julia-repl
 @show subs(p, x => BigInterval(1//3))  
 ```
 **Output:**

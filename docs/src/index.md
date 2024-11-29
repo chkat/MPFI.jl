@@ -17,7 +17,7 @@ See [here](https://pace.gitlabpages.inria.fr/software/) for instructions
   
 
 
-```julia
+```julia-repl
 using MPFI
 ```
 
@@ -25,7 +25,7 @@ using MPFI
 
 Here’s a simple example to get started with `MPFI.jl`:
 
-```julia
+```julia-repl
 using MPFI
 
 # Create intervals with arbitrary precision
