@@ -7,7 +7,7 @@ export BigInterval, precision, left, right, has_zero, isbounded
 import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._string, MPFR, exp, exp2, 
     exp10, expm1, cosh, sinh, tanh, sech, csch, coth, inv, sqrt, cbrt, abs, log, log2, 
     log10, log1p, sin, cos, tan, sec, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, 
-    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal
+    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal, isdone
 
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 
@@ -52,12 +52,16 @@ using MPFI_jll: libmpfi
 An arbitrary-precision interval floating-point number type, wrapping the C `MPFI` library.
 Use this type to perform operations with intervals that represent ranges of numbers rather than single values.
 
-BigInterval corresponds to the C-structure:
-    typedef struct {
-        __mpfr_struct left;
-        __mpfr_struct right;
-    }__mpfi_struct;
+# Structure
 
+Internally, `BigInterval` corresponds to the following C structure in `MPFI`:
+
+```c
+typedef struct {
+    __mpfr_struct left;
+    __mpfr_struct right;
+} __mpfi_struct;
+```
 """
 mutable struct BigInterval <: Number
     left_prec::Clong
@@ -72,21 +76,37 @@ mutable struct BigInterval <: Number
     # I ignore the last fields __d of BigFloats
     # Memory here is managed by MPFI
 
-    """
-    BigInterval(; precision=DEFAULT_PRECISION())
-
-    Creates a new `BigInterval` with the given precision.
-    Precision must be at least 1.
-    """
-    function BigInterval(;precision::Integer=DEFAULT_PRECISION())
+    function BigInterval(; precision::Integer=DEFAULT_PRECISION())
         precision < 1 && throw(DomainError(precision, "`precision` cannot be less than 1."))
         z = new(zero(Clong), zero(Cint), zero(Clong), C_NULL,
-                zero(Clong), zero(Cint), zero(Clong), C_NULL)
-        ccall((:mpfi_init2,libmpfi), Cvoid, (Ref{BigInterval}, Clong), Ref(z), precision)
-        finalizer(mpfi_clear,z)
+            zero(Clong), zero(Cint), zero(Clong), C_NULL)
+        ccall((:mpfi_init2, libmpfi), Cvoid, (Ref{BigInterval}, Clong), Ref(z), precision)
+        finalizer(mpfi_clear, z)
         return z
     end
 end
+
+ """
+    BigInterval(; precision=DEFAULT_PRECISION())
+
+Creates a new `BigInterval` with the specified precision. The precision must be an integer greater than or equal to 1.
+
+# Arguments
+- `precision::Integer`: The precision (in bits) for the interval. Defaults to `DEFAULT_PRECISION()`.
+
+# Throws
+- `DomainError`: If `precision` is less than 1.
+
+# Example
+```julia
+julia> x = BigInterval(;precision=128)
+[NaN, NaN]
+
+julia> precision(x)
+128
+```
+"""
+function BigInterval(; precision::Integer=DEFAULT_PRECISION()) end
 
 DEFAULT_PRECISION() = precision(BigFloat)
 
@@ -523,7 +543,7 @@ end
 
 
 
-#  --------------------------------  Utility functions  -------------------------------------
+#  --------------------------------  Comparison functions and operators  -------------------------------------
 
 # checks if there is intersection 
 # when x == 0 it works as has_zero
@@ -593,6 +613,9 @@ Identical to isnan(x::BigInterval).
 
 # Returns
 - `Bool`: `true` if `x` is empty, `false` otherwise.
+
+# Extends
+[`Base.isempty`](@ref)
 """
 function isempty(x::BigInterval)
     return ccall((:mpfi_is_empty, libmpfi), Int32, (Ref{BigInterval},), x) != 0
@@ -608,6 +631,9 @@ Checks if the interval `x` is NaN (Not a Number).
 
 # Returns
 - `Bool`: `true` if `x` is NaN, `false` otherwise.
+
+# Extends
+[`Base.isnan`](@ref)
 """
 function isnan(x::BigInterval)
     return ccall((:mpfi_nan_p, libmpfi), Int32, (Ref{BigInterval},), x) != 0
@@ -623,6 +649,9 @@ Checks if the interval `x` contains infinite values.
 
 # Returns
 - `Bool`: `true` if `x` contains infinite values, `false` otherwise.
+
+# Extends
+[`Base.isinf`](@ref)
 """
 function isinf(x::BigInterval)
     return ccall((:mpfi_inf_p, libmpfi), Int32, (Ref{BigInterval},), x) != 0
@@ -638,6 +667,9 @@ Checks if the interval `x` is zero, i.e., both the lower and upper bounds are ze
 
 # Returns
 - `Bool`: `true` if `x` is zero, `false` otherwise.
+
+# Extends
+[`Base.iszero`](@ref)
 """
 iszero(x::BigInterval) = left(x)==0 && right(x)==0
 
