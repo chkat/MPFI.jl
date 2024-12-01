@@ -75,15 +75,6 @@ mutable struct BigInterval <: Number
 
     # I ignore the last fields __d of BigFloats
     # Memory here is managed by MPFI
-
-    function BigInterval(; precision::Integer=DEFAULT_PRECISION())
-        precision < 1 && throw(DomainError(precision, "`precision` cannot be less than 1."))
-        z = new(zero(Clong), zero(Cint), zero(Clong), C_NULL,
-            zero(Clong), zero(Cint), zero(Clong), C_NULL)
-        ccall((:mpfi_init2, libmpfi), Cvoid, (Ref{BigInterval}, Clong), Ref(z), precision)
-        finalizer(mpfi_clear, z)
-        return z
-    end
 end
 
  """
@@ -106,7 +97,14 @@ julia> precision(x)
 128
 ```
 """
-function BigInterval(; precision::Integer=DEFAULT_PRECISION()) end
+function BigInterval(; precision::Integer=DEFAULT_PRECISION())
+    precision < 1 && throw(DomainError(precision, "`precision` cannot be less than 1."))
+    z = BigInterval(zero(Clong), zero(Cint), zero(Clong), C_NULL,
+        zero(Clong), zero(Cint), zero(Clong), C_NULL)
+    ccall((:mpfi_init2, libmpfi), Cvoid, (Ref{BigInterval}, Clong), Ref(z), precision)
+    finalizer(mpfi_clear, z)
+    return z
+end
 
 DEFAULT_PRECISION() = precision(BigFloat)
 
