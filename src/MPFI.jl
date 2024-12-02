@@ -24,25 +24,6 @@ end
 const CdoubleMax = Union{Float16, Float32, Float64}
 
 =#
-# Replace with the path to your shared library (.so, .dylib or .dll file)
-#=LIB_PATH = abspath(joinpath(@__DIR__, "../bin/"))
-
-# Load the shared library
-if Sys.iswindows()
-    libmpfi = joinpath(LIB_PATH, "Windows_x86_64/libmpfi.dll")
-else 
-    os=readchomp(`uname -s`)
-    mach=readchomp(`uname -m`)
-    om = os*"_"*mach
-
-    if Sys.isapple()
-        # mpfi compiled with --with-gmp-lib=/Applications/Julia-1.9.app/Contents/Resources/julia/lib/julia --with-mpfr-lib=/Applications/Julia-1.9.app/Contents/Resources/julia/lib/julia
-        # and with functions exp10m1, exp2m1, log2p1, log10p1 removed from source files of mpfi
-        libmpfi = joinpath(LIB_PATH, om*"/libmpfi.0.dylib")
-    else # Sys.islinux()
-        libmpfi = joinpath(LIB_PATH, om*"/libmpfi.so.0.0.0")
-    end
-end =#
 
 using MPFI_jll: libmpfi
 
@@ -117,14 +98,27 @@ one(::Type{BigInterval}) = BigInterval(1)
 #  --------------------------------  Basic access functions  -------------------------------------
 
 
-#function setprecision(x::BigInterval, prec::Clong)
-# return ccall((:mpfi_set_prec, libmpfi), Clong, (Ref{BigInterval},Clong), x, prec)
-#end
+
 """
     precision(x::BigInterval) -> Clong
 
 Returns the precision of the `BigInterval` `x`.
-"""
+
+# Arguments
+- `x::BigInterval`: The interval whose precision is to be retrieved.
+
+# Returns
+- `Clong`: The precision (in bits) of the interval.
+
+# Example
+```julia
+julia> x = BigInterval(; precision=128)
+[NaN, NaN]
+
+julia> precision(x)
+128
+```
+""" 
 function precision(x::BigInterval)
     return ccall((:mpfi_get_prec, libmpfi), Clong, (Ref{BigInterval},), x)
 end
@@ -133,6 +127,12 @@ end
     left(x::BigInterval) -> BigFloat
 
 Returns the left bound of the interval as a `BigFloat`.
+
+# Arguments
+- `x::BigInterval`: The interval whose left bound is to be retrieved.
+
+# Returns
+- `BigFloat`: The left bound of the interval.
 """
 function left(x::BigInterval)
     z = BigFloat(;precision=precision(x))
@@ -140,10 +140,17 @@ function left(x::BigInterval)
     return z
 end
 
+
 """
     right(x::BigInterval) -> BigFloat
 
 Returns the right bound of the interval as a `BigFloat`.
+
+# Arguments
+- `x::BigInterval`: The interval whose right bound is to be retrieved.
+
+# Returns
+- `BigFloat`: The right bound of the interval.
 """
 function right(x::BigInterval)
     z = BigFloat(;precision=precision(x))
@@ -151,6 +158,25 @@ function right(x::BigInterval)
     return z
 end
 
+
+"""
+    sign(x::BigInterval) -> BigInterval
+
+Returns the sign of the `BigInterval` `x`, extending the behavior of [`Base.sign`](@ref) for intervals.
+
+# Behavior
+- Conforms to the definition of [`Base.sign`](@ref), where `sign(x)` returns `0` if `x == 0` and `x / |x|` otherwise (i.e., ±1 for real numbers).
+- For intervals:
+  - If `x` contains `0` or is `NaN`, returns `x`.
+  - If `x` is entirely positive, returns `BigInterval(1)=[1.0, 1.0]`.
+  - If `x` is entirely negative, returns `BigInterval(-1)=[-1.0, -1.0]`.
+
+  # Arguments
+- `x::BigInterval`: The interval whose sign is to be determined.
+
+# Returns
+- `BigInterval`: The "sign" of the interval.
+"""
 function sign(x::BigInterval)
     c = cmp(x, 0)
     (c == 0 || isnan(x)) && return x
@@ -173,7 +199,6 @@ convert(::Type{Float64}, x::BigInterval) =
 promote_rule(::Type{BigInterval}, ::Type{<:Real}) = BigInterval
 promote_rule(::Type{BigInterval}, ::Type{<:AbstractFloat}) = BigInterval
 promote_rule(::Type{BigInterval}, ::Type{<:Number}) = BigInterval
-
 
 
 for to in (Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, BigInt, Float32)
@@ -258,7 +283,6 @@ BigInterval(x::Union{Float16,Float32}, y::Union{Float16,Float32};precision::Inte
 
 
 BigInterval(x::Rational;precision::Integer=DEFAULT_PRECISION()) = BigInterval(numerator(x);precision=precision)::BigInterval / BigInterval(denominator(x);precision=precision)::BigInterval
-# to do the dyadic constructor for rationals 
 
 
 
@@ -819,10 +843,6 @@ function blow(x::BigInterval, y::Float64;precision::Integer=DEFAULT_PRECISION())
 end
 
 
-
-
-
-
 #  --------------------------------  Printing  -------------------------------------
 
 
@@ -830,7 +850,7 @@ end
 function string(x::BigInterval)
     # The contents of x are passed in a BigFloat
     # BigFloat._d is not set but there is no need 
-    # The memory @ d is managed by MPFI
+    # The memory @ d is managed by GMP
 
     if isnan(x)
         return "[NaN, NaN]"
@@ -856,7 +876,7 @@ end
 function string(x::BigInterval, k::Integer)
     # The contents of x are passed in a BigFloat
     # BigFloat._d is not set but there is no need 
-    # The memory @ d is managed by MPFI
+    # The memory @ d is managed by GMP
 
     if isnan(x)
         return "[NaN, NaN]" #"[$(string(Float64(left(x)))), $(string(Float64(right(x))))]"
@@ -894,69 +914,47 @@ function show(io::IO, b::BigInterval)
 end
 
 
+#  ---------------------------  Additional functions  --------------------------------
 
+"""
+    _import_from_ptr(x::Ptr{Cvoid}; precision=DEFAULT_PRECISION()) -> BigInterval
+
+Imports a `BigInterval` from a raw pointer to the MPFI structure. The precision of the 
+resulting `BigInterval` can be specified.
+
+# Arguments
+- `x::Ptr{Cvoid}`: A C-pointer to the MPFI structure.
+- `precision::Integer`: The precision (in bits) for the resulting `BigInterval`. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+- `BigInterval`: The interval corresponding to the imported MPFI structure.
+
+# Notes
+This is a low-level function designed for internal use. Direct usage in applications is 
+not recommended unless you are handling MPFI pointers explicitly.
+"""
 function _import_from_ptr(x::Ptr{Cvoid};precision=DEFAULT_PRECISION())
     z = BigInterval(;precision=precision)
     ccall((:mpfi_set, libmpfi), Int32, (Ref{BigInterval}, Ptr{Cvoid}), z, x)
     return z
 end
 
-function _print_mem_funcs()
-    ccall((:__gmp_get_memory_functions, libmpfi), Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}), C_NULL, C_NULL,C_NULL)
-end
+"""
+    midpoint(x::BigInterval) -> BigFloat
 
+Computes the midpoint of the given `BigInterval`.
 
+# Arguments
+- `x::BigInterval`: The interval for which the midpoint is calculated.
 
-function midpoints(x::Vector{Vector{BigInterval}})::Vector{Vector{BigFloat}}
-    return [[(left(x[i][j])+right(x[i][j]))/2 for j in 1:length(x[i])] for i in 1:length(x)]
-end
-
-function midpoints(x::Vector{BigInterval})::Vector{BigFloat}
-    return [(left(x[i])+right(x[i]))/2 for i in 1:length(x)]
+# Returns
+- `BigFloat`: The midpoint of the interval, calculated as `(left(x) + right(x)) / 2`.
+"""
+function midpoint(x::BigInterval)::BigFloat
+    return (left(x)+right(x))/2 
 end
 
 @doc read(joinpath(dirname(@__DIR__), "README.md"), String) MPFI
 
 end
 
-# ---------  TO BE WRAPPED 
-
-#=
-/* swapping two intervals */
-void    mpfi_swap (mpfi_ptr, mpfi_ptr);
-
-
-
-/* picks randomly a point m in y */
-void    mpfi_alea       (mpfr_ptr, mpfi_srcptr);
-void    mpfi_urandom    (mpfr_ptr, mpfi_srcptr, gmp_randstate_t);
-void    mpfi_nrandom    (mpfr_ptr, mpfi_srcptr, gmp_randstate_t);
-void    mpfi_erandom    (mpfr_ptr, mpfi_srcptr, gmp_randstate_t);
-
-
-
-/* Basic arithmetic operations                  */
-
-
-/* arithmetic operations between an interval operand and a multiple prec. rational */
-int     mpfi_add_q      (mpfi_ptr, mpfi_srcptr, mpq_srcptr);
-int     mpfi_sub_q      (mpfi_ptr, mpfi_srcptr, mpq_srcptr);
-int     mpfi_q_sub      (mpfi_ptr, mpq_srcptr, mpfi_srcptr);
-int     mpfi_mul_q      (mpfi_ptr, mpfi_srcptr, mpq_srcptr);
-int     mpfi_div_q      (mpfi_ptr, mpfi_srcptr, mpq_srcptr);
-int     mpfi_q_div      (mpfi_ptr, mpq_srcptr, mpfi_srcptr);
-
-
-
-/* extended division: returns 2 intervals if the denominator contains 0 */
-int	mpfi_div_ext	(mpfi_ptr, mpfi_ptr, mpfi_srcptr, mpfi_srcptr);
-
-/* various operations */
-int     mpfi_mul_2exp   (mpfi_ptr, mpfi_srcptr, unsigned long);
-int     mpfi_mul_2ui    (mpfi_ptr, mpfi_srcptr, unsigned long);
-int     mpfi_mul_2si    (mpfi_ptr, mpfi_srcptr, long);
-int     mpfi_div_2exp   (mpfi_ptr, mpfi_srcptr, unsigned long);
-int     mpfi_div_2ui    (mpfi_ptr, mpfi_srcptr, unsigned long);
-int     mpfi_div_2si    (mpfi_ptr, mpfi_srcptr, long);
-
-=#
