@@ -20,6 +20,6 @@ using Test
     @test MPFI.is_inside( BigInterval(2.,4.1), BigInterval(1,4)) == false
     @test MPFI.blow(BigInterval(1,6),2.) == BigInterval(-4, 11)
     @test MPFI.bisect(BigInterval(1,6)) == (BigInterval(1.,3.5), BigInterval(3.5,6.))
-    @test MPFI.midpoint(BigInterval(1,2)) == 1.5
+    @test MPFI.mid(BigInterval(1,2)) == 1.5
 
 end

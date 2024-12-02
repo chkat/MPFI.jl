@@ -474,7 +474,6 @@ function square(x::BigInterval)
     return z
 end
 
-# exp10m1, :exp2m1 :log10p1, :log2p1 not interfaced
 for f in (:exp, :exp2, :exp10, :expm1, :cosh, :sinh, :tanh, :sech, :csch, :coth, :inv,
      :sqrt, :cbrt, :abs, :rec_sqrt, :log, :log2, :log10, :log1p, :sin, :cos, :tan, :sec,
     :csc, :cot, :acos, :asin, :atan, :acosh, :asinh, :atanh)
@@ -493,29 +492,8 @@ end
 
 # constants
 
-#=
-int     mpfi_const_log2         (mpfi_ptr);
-int     mpfi_const_pi           (mpfi_ptr);
-int     mpfi_const_euler        (mpfi_ptr);
-int     mpfi_const_catalan      (mpfi_ptr);
-=#
+
 BigInterval(x::Irrational;precision::Integer=DEFAULT_PRECISION()) = convert(BigInterval,x;precision=precision)#BigInterval(BigFloat(x))
-
-
-# TODO : USE MPFI FUNCTIONS FOR CERTAIN CONSTANTS
-
-#=for (fC, fJ) in ((:pi,:π), (:euler,:ℯ))#, (:catalan,:MathConstants.catalan))
-    @eval begin
-    #BigInterval(::Irrational{:$fJ}) = convert(BigInterval, $fJ)
-    function convert(::Type{BigInterval}, x::Irrational{:($fJ)})
-        println("fsdfsd")
-        z = BigInterval(;precision=precision)
-        ccall(($(string(:mpfi_const_,($fC))),libmpfi), Int32, (Ref{BigInterval},), z)
-        return z
-    end
-    end
-end
-=#
 
 
 function convert(::Type{BigInterval}, ::Irrational{:π};precision::Integer=DEFAULT_PRECISION())
@@ -534,6 +512,86 @@ end
 
 # --------------------------------  Various useful interval functions  -------------------------------------
 
+"""
+    mid(x::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigFloat
+
+Computes the midpoint of the given `BigInterval`.
+
+# Arguments
+- `x::BigInterval`: The interval for which the midpoint is calculated.
+
+# Returns
+- `BigFloat`: The midpoint of the interval, calculated as `(left(x) + right(x)) / 2`.
+"""
+function mid end
+
+"""
+    diam_abs(x::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigFloat
+
+Returns the absolute diameter of the interval `x` as a `BigFloat`. The diameter represents the distance between the left and right bounds of the interval.
+
+# Arguments
+- `x::BigInterval`: The input interval.
+- `precision::Integer`: The precision in bits to use for the result. Defaults to `DEFAULT_PRECISION()`.
+"""
+function diam_abs end
+
+"""
+    diam_rel(x::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigFloat
+
+Returns the relative diameter of the interval `x` as a `BigFloat`. The relative diameter is calculated as the absolute diameter of the interval divided by the midpoint of the interval.
+
+# Arguments
+- `x::BigInterval`: The input interval for which the relative diameter is computed.
+- `precision::Integer`: The precision in bits to use for the result. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+A `BigFloat` representing the relative diameter of the interval.
+""" 
+function diam_rel end
+
+"""
+    diam(x::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigFloat
+
+Returns the diameter of the interval `x` as a `BigFloat`. The diameter of the interval is the difference between the right and left bounds of the interval.
+
+# Arguments
+- `x::BigInterval`: The input interval for which the diameter is computed.
+- `precision::Integer`: The precision in bits to use for the result. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+A `BigFloat` representing the diameter of the interval.
+""" 
+function diam end
+
+"""
+    mag(x::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigFloat
+
+Returns the magnitude of the interval `x` as a `BigFloat`. The magnitude is the maximum of the absolute values of the left and right bounds of the interval.
+
+# Arguments
+- `x::BigInterval`: The input interval for which the magnitude is computed.
+- `precision::Integer`: The precision in bits to use for the result. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+A `BigFloat` representing the magnitude of the interval.
+"""
+function mag end
+
+"""
+    mig(x::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigFloat
+
+Returns the Mignitude of the interval `x`. Mignitude is defined as the smallest absolute value of any element within the interval.
+
+# Arguments
+- `x::BigInterval`: The input interval for which the Mignitude is computed.
+- `precision::Integer`: The precision in bits to use for the result. Defaults to `DEFAULT_PRECISION()`.
+
+# Returns
+A `BigFloat` representing the Mignitude (smallest absolute value) of the interval.
+
+""" 
+function mig end
 
 for f in (:diam_abs, :diam_rel, :diam, :mag, :mig, :mid)
     @eval function $(f)(x::BigInterval;precision::Integer=DEFAULT_PRECISION())
@@ -939,20 +997,6 @@ function _import_from_ptr(x::Ptr{Cvoid};precision=DEFAULT_PRECISION())
     return z
 end
 
-"""
-    midpoint(x::BigInterval) -> BigFloat
-
-Computes the midpoint of the given `BigInterval`.
-
-# Arguments
-- `x::BigInterval`: The interval for which the midpoint is calculated.
-
-# Returns
-- `BigFloat`: The midpoint of the interval, calculated as `(left(x) + right(x)) / 2`.
-"""
-function midpoint(x::BigInterval)::BigFloat
-    return (left(x)+right(x))/2 
-end
 
 @doc read(joinpath(dirname(@__DIR__), "README.md"), String) MPFI
 
