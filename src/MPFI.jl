@@ -1,7 +1,7 @@
 
 module MPFI
 
-export BigInterval, precision, left, right, has_zero, isbounded
+export BigInterval, precision, left, right, has_zero, isbounded, intersect, union
 
 
 import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._string, MPFR, exp, exp2, 
@@ -243,21 +243,30 @@ for (fJ, fC) in ((:si,:Clong), (:ui,:Culong), (:d,:Cdouble))
 end
 
 # convert to BigInterval by passing a BigInt or a BigFloat
-for (fJ, fC) in ((:z,:BigInt), (:fr,:BigFloat))
-    @eval begin
-        function BigInterval(x::($fC);precision::Integer=precision(x))
-            z = BigInterval(;precision=precision)
-            ccall(($(string(:mpfi_set_,fJ)), libmpfi), Int32, (Ref{BigInterval}, Ref{$fC}), Ref(z), Ref(x))
-            return z
-        end
-        # Dyadic constructors
-        function BigInterval(x::($fC), y::($fC);precision::Integer=precision(x))
-            z = BigInterval(;precision=precision)
-            ccall(($(string(:mpfi_interv_,fJ)), libmpfi), Int32, (Ref{BigInterval}, Ref{$fC}, Ref{$fC}), Ref(z), Ref(x), Ref(y))
-            return z
-        end
-    end
+function BigInterval(x::BigInt;precision::Integer=DEFAULT_PRECISION())
+    z = BigInterval(;precision=precision)
+    ccall((:mpfi_set_z, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInt}), Ref(z), Ref(x))
+    return z
 end
+# Dyadic constructors
+function BigInterval(x::BigInt, y::BigInt;precision::Integer=DEFAULT_PRECISION())
+    z = BigInterval(;precision=precision)
+    ccall((:mpfi_interv_z, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInt}, Ref{BigInt}), Ref(z), Ref(x), Ref(y))
+    return z
+end
+
+function BigInterval(x::BigFloat;precision::Integer=precision(x))
+    z = BigInterval(;precision=precision)
+    ccall((:mpfi_set_fr, libmpfi), Int32, (Ref{BigInterval}, Ref{BigFloat}), Ref(z), Ref(x))
+    return z
+end
+# Dyadic constructors
+function BigInterval(x::BigFloat, y::BigFloat;precision::Integer=precision(x))
+    z = BigInterval(;precision=precision)
+    ccall((:mpfi_interv_fr, libmpfi), Int32, (Ref{BigInterval}, Ref{BigFloat}, Ref{BigFloat}), Ref(z), Ref(x), Ref(y))
+    return z
+end
+
 
 
 function BigInterval(x::AbstractString;precision::Integer=DEFAULT_PRECISION())
@@ -836,9 +845,9 @@ Computes the intersection of two intervals `x` and `y`.
 function intersect end # Attach the docstring 
 
 """
-    union(x::BigInterval, y::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigInterval
+    union(x::BigInterval, y::BigInterval) -> BigInterval
 
-Computes the union of two intervals `x` and `y`.
+Returns the convex hull of the union of two intervals `x` and `y`. This is the smallest interval that contains all the values in both `x` and `y`, ensuring there is no gap between them.
 
 # Arguments
 - `x::BigInterval`: The first interval.

@@ -29,6 +29,12 @@ MPFI.is_inside
 ```@docs
 MPFI.intersect
 MPFI.union
+``` 
+
+!!! warning
+    The functions `union` and `intersection` provided in this package do **not** extend the `Base.union` and `Base.intersect` functions. Instead, they are specifically implemented for use with `MPFI`. Ensure you use the `MPFI` module's versions when working with intervals.
+
+```@docs
 MPFI.bisect
 MPFI.blow
 MPFI.diam_abs

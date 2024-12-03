@@ -21,5 +21,5 @@ using Test
     @test MPFI.blow(BigInterval(1,6),2.) == BigInterval(-4, 11)
     @test MPFI.bisect(BigInterval(1,6)) == (BigInterval(1.,3.5), BigInterval(3.5,6.))
     @test MPFI.mid(BigInterval(1,2)) == 1.5
-
+    @test MPFI.isempty(MPFI.intersect(BigInterval(1.0, 2.0), BigInterval(-6,-5))) == true
 end
