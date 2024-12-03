@@ -1,13 +1,13 @@
 
 module MPFI
 
-export BigInterval, precision, left, right, has_zero, isbounded, intersect, union
+export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid
 
 
 import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._string, MPFR, exp, exp2, 
     exp10, expm1, cosh, sinh, tanh, sech, csch, coth, inv, sqrt, cbrt, abs, log, log2, 
     log10, log1p, sin, cos, tan, sec, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, 
-    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal, isdone
+    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal
 
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 

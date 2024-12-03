@@ -12,12 +12,11 @@
 
 ## Installation
    
-To use the `MPFI.jl` package, you need to have acces to PACE Julia Registry and to have activated it for your Julia installation.
-See [here](https://pace.gitlabpages.inria.fr/software/) for instructions
-  
+To use the `MPFI.jl` package, install it from the General Julia Registry:
 
+```julia-repl
+julia> import Pkg; Pkg.add("MPFI");
 
-```julia-
 julia> using MPFI
 ```
 
