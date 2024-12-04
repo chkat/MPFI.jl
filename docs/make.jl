@@ -7,11 +7,11 @@ About = "Introduction" => "index.md"
 #HowToIntro = "How-To guides" => "how_to_guides.md" 
 BasicUsage = "Basic Usage" => "basic_usage.md"
 UsingWithDynamicPolynomials = "Using with DynamicPolynomials" => "using_with_dp.md"
-PublicAPI = "Public API" => "functions.md"
+PublicAPI = "Public API" => "public_api.md"
 PrivateAPI = "Private API" => "private_api.md"
 
 Reference = "Reference" => [PublicAPI, PrivateAPI]
-HowTo = "How-To guides" => [
+Manual = "Manual" => [
     BasicUsage,
     UsingWithDynamicPolynomials
 ]
@@ -19,7 +19,7 @@ HowTo = "How-To guides" => [
 
 PAGES = [
     About, 
-    HowTo,
+    Manual,
     Reference
 ]
 

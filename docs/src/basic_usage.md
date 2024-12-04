@@ -153,3 +153,126 @@ julia> e_interval = BigInterval(ℯ)
 ```
 
 
+## Comparing Intervals
+
+`MPFI.jl` provides a suite of functions and operators for comparing intervals. Below is an explanation of the comparison methods and their usage.
+
+### Zero Tests
+
+Two dedicated functions are available for testing intervals against zero:
+
+- `iszero(x::BigInterval)`: Returns `true` if the interval `x` is exactly zero (i.e., `[0, 0]`).
+- `has_zero(x::BigInterval)`: Returns `true` if the interval `x` contains zero within its bounds.
+
+#### Examples:
+```julia-repl
+julia> x = BigInterval(-1, 1)
+[-1.0, 1.0]
+
+julia> iszero(x)
+false
+
+julia> has_zero(x)
+true
+
+julia> x = BigInterval(0)
+[0.0, -0.0]
+
+julia> iszero(x)
+true
+
+julia> has_zero(x)
+true
+```
+
+
+### Comparison Functions
+
+The `cmp` function performs a comparison between intervals or between an interval and a real number. It uses the corresponding MPFI C functions, such as `mpfi_cmp_default`, `mpfi_cmp_ui_default`, and others, depending on the types of arguments. The function returns:
+- `1` if one or both operands are invalid (contain NaN).
+- `-1` if the first operand is strictly less than the second.
+- `0` if the intervals overlap or the value lies within the interval.
+- `1` if the first operand is strictly greater than the second.
+
+The following variations of `cmp` handle comparisons with different types:
+
+- `cmp(x::BigInterval, y::BigInterval)`: Compares two intervals.
+- `cmp(x::BigInterval, y::Integer)`: Compares an interval with an integer, converting the integer to a `BigInterval`.
+- `cmp(x::BigInterval, y::BigFloat)`: Compares an interval with a `BigFloat`.
+- `cmp(x::BigInterval, y::CdoubleMax)`: Compares an interval with a double.
+- Additional `cmp` overloads handle other types like `BigInt`, `ClongMax`, `CulongMax`, etc.
+
+### Comparison Operators
+ 
+Comparison operators (`==`, `<=`, `>=`, `<`, `>`) rely on the output of `cmp`. These operators return `true` or `false` based on the comparison:
+
+- `==`: Returns `true` if the intervals or values are considered equal (intersection or exact match).
+- `<=`: Returns `true` if the first interval is less than or equal to the second.
+- `>=`: Returns `true` if the first interval is greater than or equal to the second.
+- `<`: Returns `true` if the first interval is strictly less than the second.
+- `>`: Returns `true` if the first interval is strictly greater than the second.
+
+**Example:**
+```julia-repl
+julia> x = BigInterval(0,2)
+[0.0, 2.0]
+
+julia> y = BigInterval(1.0, 2.0) 
+[1.0, 2.0]
+
+julia> z = BigInterval(4,5)
+[4.0, 5.0]
+
+julia> x > y
+false
+
+julia> x>=y
+true
+
+julia> z>x
+true
+
+julia> z>y
+true
+```
+
+#### Important Notes
+1. The `==` operator for intervals behaves differently compared to `cmp`. It checks if the intervals are exactly the same:
+   ```julia
+   ==(x::BigInterval, y::BigInterval) = left(x) == left(y) && right(x) == right(y)
+   ```
+   This means that `==` only returns `true` if both endpoints match exactly, even if the intervals intersect.
+
+   **Example:**
+   ```julia-repl
+    julia> x = BigInterval(0,2)
+    [0.0, 2.0]
+
+    julia> y = BigInterval(1,3)
+    [1.0, 3.0]
+
+    julia> x == y 
+    false
+
+    julia> cmp(x,y)
+    0
+    ``` 
+
+2. For intervals compared to `0`, the `==` operator behaves like `has_zero`, checking if the interval contains `0` within its bounds.
+
+    **Example:**
+   ```julia-repl
+   julia> x = BigInterval(-1.0, 1.0)
+    [-1.0, 1.0]
+
+    julia> y = BigInterval(1.0, 2.0)
+    [1.0, 2.0]
+
+    julia> x == 0
+    true
+
+    julia> y == 0
+    false
+   ```
+
+

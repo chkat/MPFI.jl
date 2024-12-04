@@ -465,12 +465,6 @@ for (fJ, fC) in ((:-,:sub), (:/,:div))
     end
 end
 
-#=/* arithmetic operations taking a single interval operand */
-
-
-/* Special functions                                        */
-
-=#
 function -(x::BigInterval)
     z = BigInterval(;precision=MPFI.precision(x))
     ccall((:mpfi_neg, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
@@ -502,7 +496,7 @@ end
 # constants
 
 
-BigInterval(x::Irrational;precision::Integer=DEFAULT_PRECISION()) = convert(BigInterval,x;precision=precision)#BigInterval(BigFloat(x))
+BigInterval(x::Irrational;precision::Integer=DEFAULT_PRECISION()) = convert(BigInterval,x;precision=precision)
 
 
 function convert(::Type{BigInterval}, ::Irrational{:π};precision::Integer=DEFAULT_PRECISION())
@@ -635,25 +629,50 @@ end
 #  --------------------------------  Comparison functions and operators  -------------------------------------
 
 # checks if there is intersection 
-# when x == 0 it works as has_zero
-==(x::BigInterval, y::BigInterval) = left(x)==left(y) && right(x)==right(y) #ccall((:mpfi_cmp_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), Ref(x), Ref(y)) == 0
+# when x == 0 it works as has_zero left(x)==left(y) && right(x)==right(y) #
+==(x::BigInterval, y::BigInterval) = left(x)==left(y) && right(x)==right(y) 
 <=(x::BigInterval, y::BigInterval) = ccall((:mpfi_cmp_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, y) != 1
 >=(x::BigInterval, y::BigInterval) = ccall((:mpfi_cmp_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, y) !=-1
 <(x::BigInterval, y::BigInterval) = ccall((:mpfi_cmp_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, y) == -1
 >(x::BigInterval, y::BigInterval) = ccall((:mpfi_cmp_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, y) == 1
 
+function cmp(x::BigInterval, y:: BigInterval)
+    ccall((:mpfi_cmp_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), x, y)
+end
+
 function cmp(x::BigInterval, y::BigInt)
     isnan(x) && return 1
     ccall((:mpfi_cmp_z_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInt}), x, y)
 end
+cmp(y::BigInt, x::BigInterval) = -cmp(x,y)
+==(x::BigInterval, y::BigInt) = cmp(x,y) == 0 
+<=(x::BigInterval, y::BigInt) = cmp(x,y) != 1 
+>=(x::BigInterval, y::BigInt) = cmp(x,y) != -1
+<(x::BigInterval, y::BigInt) = cmp(x,y) == -1
+>(x::BigInterval, y::BigInt) = cmp(x,y) == 1
+
 function cmp(x::BigInterval, y::ClongMax)
     isnan(x) && return 1
     ccall((:mpfi_cmp_si_default, libmpfi), Int32, (Ref{BigInterval}, Clong), x, y)
 end
+cmp(y::ClongMax, x::BigInterval) = -cmp(x,y)
+==(x::BigInterval, y::ClongMax) = cmp(x,y) == 0 
+<=(x::BigInterval, y::ClongMax) = cmp(x,y) != 1 
+>=(x::BigInterval, y::ClongMax) = cmp(x,y) != -1
+<(x::BigInterval, y::ClongMax) = cmp(x,y) == -1
+>(x::BigInterval, y::ClongMax) = cmp(x,y) == 1
+
 function cmp(x::BigInterval, y::CulongMax)
     isnan(x) && return 1
     ccall((:mpfi_cmp_ui_default, libmpfi), Int32, (Ref{BigInterval}, Culong), x, y)
 end
+cmp(y::CulongMax, x::BigInterval) = -cmp(x,y)
+==(x::BigInterval, y::CulongMax) = cmp(x,y) == 0 
+<=(x::BigInterval, y::CulongMax) = cmp(x,y) != 1 
+>=(x::BigInterval, y::CulongMax) = cmp(x,y) != -1
+<(x::BigInterval, y::CulongMax) = cmp(x,y) == -1
+>(x::BigInterval, y::CulongMax) = cmp(x,y) == 1
+
 cmp(x::BigInterval, y::Integer) = cmp(x,big(y))
 cmp(x::Integer, y::BigInterval) = -cmp(y,x)
 
@@ -662,7 +681,12 @@ function cmp(x::BigInterval, y::CdoubleMax)
     isnan(y) && return -1
     ccall((:mpfi_cmp_d_default, libmpfi), Int32, (Ref{BigInterval}, Cdouble), x, y)
 end
-cmp(x::CdoubleMax, y::BigInterval) = -cmp(y,x)
+cmp(y::CdoubleMax, x::BigInterval) = -cmp(x,y)
+==(x::BigInterval, y::CdoubleMax) = cmp(x,y) == 0 
+<=(x::BigInterval, y::CdoubleMax) = cmp(x,y) != 1 
+>=(x::BigInterval, y::CdoubleMax) = cmp(x,y) != -1
+<(x::BigInterval, y::CdoubleMax) = cmp(x,y) == -1
+>(x::BigInterval, y::CdoubleMax) = cmp(x,y) == 1
 
 function cmp(x::BigInterval, y::BigFloat)
     isnan(x) && return isnan(y) ? 0 : 1
@@ -670,6 +694,11 @@ function cmp(x::BigInterval, y::BigFloat)
     ccall((:mpfi_cmp_fr_default, libmpfi), Int32, (Ref{BigInterval}, Ref{BigFloat}), x, y)
 end
 cmp(x::BigFloat, y::BigInterval) = -cmp(y,x)
+==(x::BigInterval, y::BigFloat) = cmp(x,y) == 0 
+<=(x::BigInterval, y::BigFloat) = cmp(x,y) != 1 
+>=(x::BigInterval, y::BigFloat) = cmp(x,y) != -1
+<(x::BigInterval, y::BigFloat) = cmp(x,y) == -1
+>(x::BigInterval, y::BigFloat) = cmp(x,y) == 1
 
 
 
@@ -832,7 +861,7 @@ end
 """
     intersect(x::BigInterval, y::BigInterval; precision::Integer=DEFAULT_PRECISION()) -> BigInterval
 
-Computes the intersection of two intervals `x` and `y`.
+Computes the intersection of two intervals `x` and `y`. When intersection is an empty set, the output interval will have its left bound larger than the right one.
 
 # Arguments
 - `x::BigInterval`: The first interval.
