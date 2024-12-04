@@ -245,34 +245,34 @@ true
 
    **Example:**
    ```julia-repl
-    julia> x = BigInterval(0,2)
-    [0.0, 2.0]
+   julia> x = BigInterval(0,2)
+   [0.0, 2.0]
 
-    julia> y = BigInterval(1,3)
-    [1.0, 3.0]
+   julia> y = BigInterval(1,3) 
+   [1.0, 3.0]
 
-    julia> x == y 
-    false
+   julia> x == y 
+   false
 
-    julia> cmp(x,y)
-    0
-    ``` 
+   julia> cmp(x,y)
+   0
+   ```
 
 2. For intervals compared to `0`, the `==` operator behaves like `has_zero`, checking if the interval contains `0` within its bounds.
 
     **Example:**
    ```julia-repl
    julia> x = BigInterval(-1.0, 1.0)
-    [-1.0, 1.0]
+   [-1.0, 1.0]
 
-    julia> y = BigInterval(1.0, 2.0)
-    [1.0, 2.0]
+   julia> y = BigInterval(1.0, 2.0)
+   [1.0, 2.0]
 
-    julia> x == 0
-    true
+   julia> x == 0
+   true
 
-    julia> y == 0
-    false
+   julia> y == 0
+   false
    ```
 
 
