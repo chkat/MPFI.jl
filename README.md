@@ -12,12 +12,11 @@
 
 ## Installation
    
-To use the `MPFI.jl` package, you need to have acces to PACE Julia Registry and to have activated it for your Julia installation.
-See [here](https://pace.gitlabpages.inria.fr/software/) for instructions
-  
+To use the `MPFI.jl` package, install it from the General Julia Registry:
 
+```julia-repl
+julia> import Pkg; Pkg.add("MPFI");
 
-```julia-
 julia> using MPFI
 ```
 
@@ -56,7 +55,7 @@ Union of intervals: [0.5, 2.0]
 julia> c = BigInterval(1//3;precision=14) # Define an interval by specifying its precision
 [0.333312, 0.333344]
 julia> precision(c)
-256
+14
 
 julia> c = BigInterval(1//3) # Define an interval with the default precision of BigFloat
 [0.3333333333333333333333333333333333333333333333333333333333333333333333333333304, 0.3333333333333333333333333333333333333333333333333333333333333333333333333333348]
