@@ -963,8 +963,8 @@ function string(x::BigInterval)
         right.sign = x.right_sign
         right.exp = x.right_exp
         right.d = x.right_d
-        #return "[$(string(left)), $(string(right))]"
-        return "[$(MPFR._prettify_bigfloat(MPFR.string_mpfr(left, "%RDe"))), $(MPFR._prettify_bigfloat(MPFR.string_mpfr(right, "%RUe")))]"
+        return "[$(string(left)), $(string(right))]"
+        #return "[$(MPFR._prettify_bigfloat(MPFR.string_mpfr(left, "%RDe"))), $(MPFR._prettify_bigfloat(MPFR.string_mpfr(right, "%RUe")))]"
     end
 
 end
