@@ -891,7 +891,7 @@ function union end # Attach the docstring
 
 for f in (:intersect, :union)
     @eval begin 
-        function $f(x::BigInterval, y::BigInterval;precision::Integer=DEFAULT_PRECISION())
+        function $f(x::BigInterval, y::BigInterval;precision::Integer=max(MPFI.precision(x), MPFI.precision(y)))
             z = BigInterval(;precision=precision)
             ccall(($(string(:mpfi_,f)), libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, x, y) 
             return z
@@ -1029,10 +1029,14 @@ resulting `BigInterval` can be specified.
 This is a low-level function designed for internal use. Direct usage in applications is 
 not recommended unless you are handling MPFI pointers explicitly.
 """
-function _import_from_ptr(x::Ptr{Cvoid};precision=DEFAULT_PRECISION())
+function _import_from_ptr(x::Ptr{Cvoid};precision=precision(x))
     z = BigInterval(;precision=precision)
     ccall((:mpfi_set, libmpfi), Int32, (Ref{BigInterval}, Ptr{Cvoid}), z, x)
     return z
+end
+
+function precision(x::Ptr{Cvoid})
+    return ccall((:mpfi_get_prec, libmpfi), Clong, (Ptr{Cvoid},), x)
 end
 
 
