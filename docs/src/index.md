@@ -12,10 +12,10 @@
 
 ## Installation
    
-To use the `MPFI.jl` package, install it from the General Julia Registry:
+To use the `MPFI.jl` package, install it using the repository's url:
 
 ```julia-repl
-julia> import Pkg; Pkg.add("MPFI");
+julia> import Pkg; Pkg.add(url="https://gitlab.inria.fr/ckatsama/mpfi.jl.git");
 
 julia> using MPFI
 ```
