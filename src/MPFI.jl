@@ -1,4 +1,3 @@
-
 module MPFI
 
 export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid
@@ -12,18 +11,7 @@ import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._str
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 
 using DocStringExtensions
-#=
-From GMP.jl:
-if Clong == Int32
-    const ClongMax = Union{Int8, Int16, Int32}
-    const CulongMax = Union{UInt8, UInt16, UInt32}
-else
-    const ClongMax = Union{Int8, Int16, Int32, Int64}
-    const CulongMax = Union{UInt8, UInt16, UInt32, UInt64}
-end
-const CdoubleMax = Union{Float16, Float32, Float64}
 
-=#
 
 using MPFI_jll: libmpfi
 
@@ -55,7 +43,7 @@ mutable struct BigInterval <: Number
     right_d::Ptr{Cvoid}
 
     # I ignore the last fields __d of BigFloats
-    # Memory here is managed by MPFI
+    # Memory here is managed by libmpfi
 end
 
  """
@@ -506,6 +494,12 @@ function convert(::Type{BigInterval}, ::Irrational{:π};precision::Integer=DEFAU
 end
 
 function convert(::Type{BigInterval}, ::Irrational{:ℯ};precision::Integer=DEFAULT_PRECISION())
+    z = BigInterval(;precision=precision)
+    ccall((:mpfi_exp,libmpfi), Cint, (Ref{BigInterval},Ref{BigInterval}), z, BigInterval(1))
+    return z
+end
+
+function convert(::Type{BigInterval}, ::Irrational{:γ};precision::Integer=DEFAULT_PRECISION())
     z = BigInterval(;precision=precision)
     ccall((:mpfi_const_euler,libmpfi), Cint, (Ref{BigInterval},), z)
     return z

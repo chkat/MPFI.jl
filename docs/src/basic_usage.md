@@ -141,15 +141,18 @@ julia> sqrt(x)
 
 ## Math Constants
 
-You can create intervals representing common mathematical constants such as π and Euler's number.
+You can create intervals representing common mathematical constants such as π, ℯ and Euler's constant.
 
 
 ```julia-repl
 julia> pi_interval = BigInterval(π;precision=8)
 [3.14, 3.157]
 
-julia> e_interval = BigInterval(ℯ)
-[0.5772156649015328606065120900824024310421593359399235988057672348848677267776598, 0.5772156649015328606065120900824024310421593359399235988057672348848677267776686]
+julia> e_interval = BigInterval(ℯ;precision=8)
+[2.703, 2.719]
+
+julia> γ_interval = BigInterval(Base.MathConstants.eulergamma;precision=8)
+[0.5742, 0.5781]
 ```
 
 
