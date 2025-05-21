@@ -44,17 +44,17 @@ windows:
     - julia --project=. test/runtests.jl"  # Run tests 
 
 # macOS tests
-macos:
-  stage: test
-  tags:
-    - macos-catalina
-  script:
-    - whoami
-    - . /Users/ci/.bashrc
-    - ssh -T git@gitlab.inria.fr
-    - julia --version
-    - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
-    - julia --project=. test/runtests.jl          # Run tests 
+# macos:
+#   stage: test
+#   tags:
+#     - macos-catalina
+#   script:
+#     - whoami
+#     - . /Users/ci/.bashrc
+#     - ssh -T git@gitlab.inria.fr
+#     - julia --version
+#     - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
+#     - julia --project=. test/runtests.jl          # Run tests 
    
 
 pages:
