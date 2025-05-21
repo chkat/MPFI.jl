@@ -7,7 +7,8 @@ import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._str
     exp10, expm1, cosh, sinh, tanh, sech, csch, coth, inv, sqrt, cbrt, abs, log, log2, log10, log1p,
     sin, cos, tan, sec, ldexp, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, hypot,
     convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal,
-    BigFloat, BigInt, Float64, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, BigInt, Float32
+    BigFloat, BigInt, Float64, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, BigInt, Float32, 
+    real, imag, conj
 
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 
@@ -1047,6 +1048,77 @@ end
 
 
 @doc read(joinpath(dirname(@__DIR__), "README.md"), String) MPFI
+
+#  --------------------------------  Complex number functions  -------------------------------------
+
+"""
+    real(x::BigInterval) -> BigInterval
+
+Returns the real part of the interval `x`. Since `BigInterval` represents real intervals,
+this function simply returns the interval itself.
+
+# Arguments
+- `x::BigInterval`: The input interval.
+
+# Returns
+- `BigInterval`: The interval itself, as it represents a real number.
+
+# Examples
+```julia
+julia> x = BigInterval(1, 2)
+[1.0, 2.0]
+
+julia> real(x)
+[1.0, 2.0]
+```
+"""
+real(x::BigInterval) = x
+
+"""
+    imag(x::BigInterval) -> BigInterval
+
+Returns the imaginary part of the interval `x`. Since `BigInterval` represents real intervals,
+this function always returns zero.
+
+# Arguments
+- `x::BigInterval`: The input interval.
+
+# Returns
+- `BigInterval`: A zero interval, as real intervals have no imaginary component.
+
+# Examples
+```julia
+julia> x = BigInterval(1, 2)
+[1.0, 2.0]
+
+julia> imag(x)
+[0.0, -0.0]
+```
+"""
+imag(x::BigInterval) = zero(x)
+
+"""
+    conj(x::BigInterval) -> BigInterval
+
+Returns the complex conjugate of the interval `x`. Since `BigInterval` represents real intervals,
+the complex conjugate is the interval itself.
+
+# Arguments
+- `x::BigInterval`: The input interval.
+
+# Returns
+- `BigInterval`: The interval itself, as the complex conjugate of a real number is the number itself.
+
+# Examples
+```julia
+julia> x = BigInterval(1, 2)
+[1.0, 2.0]
+
+julia> conj(x)
+[1.0, 2.0]
+```
+"""
+conj(x::BigInterval) = x
 
 end
 

@@ -1,4 +1,3 @@
-
 # BigInterval
 
 ```@docs
@@ -94,4 +93,7 @@ In this section, we list the extensions made to `Base` functions to handle the c
 - [`Base.atanh`](https://docs.julialang.org/en/v1/base/math/#Base.atanh-Tuple{Number})
 - [`Base.Math.hypot`](https://docs.julialang.org/en/v1/base/math/#Base.Math.hypot)
 - [`Base.Math.ldexp`](https://docs.julialang.org/en/v1/base/math/#Base.Math.ldexp)
+- [`Base.real`](https://docs.julialang.org/en/v1/base/math/#Base.real)
+- [`Base.imag`](https://docs.julialang.org/en/v1/base/math/#Base.imag)
+- [`Base.conj`](https://docs.julialang.org/en/v1/base/math/#Base.conj)
 
