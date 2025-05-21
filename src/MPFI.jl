@@ -1,12 +1,13 @@
 module MPFI
 
-export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid
+export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid, square
 
 
 import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._string, MPFR, exp, exp2, 
-    exp10, expm1, cosh, sinh, tanh, sech, csch, coth, inv, sqrt, cbrt, abs, log, log2, 
-    log10, log1p, sin, cos, tan, sec, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, 
-    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal
+    exp10, expm1, cosh, sinh, tanh, sech, csch, coth, inv, sqrt, cbrt, abs, log, log2, log10, log1p,
+    sin, cos, tan, sec, ldexp, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, hypot,
+    convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal,
+    BigFloat, BigInt, Float64, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, BigInt, Float32
 
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 
@@ -175,7 +176,6 @@ end
 
 function convert(::Type{BigFloat}, x::BigInterval)
     z = BigFloat(;precision=precision(x))
-    @info "" precision(z)
     ccall((:mpfi_get_fr,libmpfi), Cvoid, (Ref{BigFloat}, Ref{BigInterval}), z, x)
     return z
 end
@@ -199,6 +199,18 @@ end
 convert(::Type{Integer}, x::BigInterval) = convert(BigInt, x)
 convert(::Type{<:AbstractFloat}, x::BigInterval) = convert(BigFloat, x)
 
+Base.BigFloat(x::BigInterval) = convert(BigFloat, x)
+Base.BigInt(x::BigInterval) = convert(BigInt, x)
+Base.Float64(x::BigInterval) = convert(Float64, x)
+Base.Float32(x::BigInterval) = convert(Float32, x)
+Base.Int8(x::BigInterval) = convert(Int8, x)
+Base.Int16(x::BigInterval) = convert(Int16, x)
+Base.Int32(x::BigInterval) = convert(Int32, x)
+Base.Int64(x::BigInterval) = convert(Int64, x)
+Base.UInt8(x::BigInterval) = convert(UInt8, x)
+Base.UInt16(x::BigInterval) = convert(UInt16, x)
+Base.UInt32(x::BigInterval) = convert(UInt32, x)
+Base.UInt64(x::BigInterval) = convert(UInt64, x)
 
 #  --------------------------------  Assignment functions  -------------------------------------
 
@@ -459,8 +471,8 @@ function -(x::BigInterval)
     return z
 end
 
-function square(x::BigInterval)
-    z = BigInterval(;precision=MPFI.precision(x))
+function square(x::BigInterval; precision::Integer=DEFAULT_PRECISION())
+    z = BigInterval(;precision=precision)
     ccall((:mpfi_sqr, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
     return z
 end
