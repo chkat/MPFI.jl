@@ -16,7 +16,6 @@ build:
 test_linux:
   stage: test  
   tags:
-    - julia
     - ci.inria.fr
   script: 
     - julia --project=@. -e "import Pkg; Pkg.test(; coverage = true)"
