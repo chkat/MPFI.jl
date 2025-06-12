@@ -24,7 +24,10 @@ linux:
     - julia --project=. -e 'using Pkg; Pkg.status()'  
     - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
     - julia --project=. -e 'using Pkg; Pkg.status()'   
-    - julia --project=. test/runtests.jl          # Run tests 
+    - julia --project=@. -e "import Pkg; Pkg.test(; coverage = true)"
+    - julia --project=test/coverage -e 'import Pkg; Pkg.instantiate()'
+    - julia --project=test/coverage test/coverage/coverage-summary.jl
+  coverage: '/Total: (\d+\.\d+)% of lines covered/'    # Run tests 
   
 
  
