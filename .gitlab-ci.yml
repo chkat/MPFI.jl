@@ -59,7 +59,6 @@ windows:
 #     - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
 #     - julia --project=. test/runtests.jl          # Run tests 
    
-
 pages:
   tags:
     - ci.inria.fr
