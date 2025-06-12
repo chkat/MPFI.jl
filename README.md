@@ -1,6 +1,6 @@
  # MPFI.jl
 
-
+[![docs](https://img.shields.io/badge/docs-available-brightgreen)](https://ckatsama.gitlabpages.inria.fr/mpfi.jl/)
 [![pipeline status](https://gitlab.inria.fr/ckatsama/mpfi.jl/badges/main/pipeline.svg)](https://gitlab.inria.fr/ckatsama/mpfi.jl/-/commits/main) [![coverage report](https://gitlab.inria.fr/ckatsama/mpfi.jl/badges/main/coverage.svg)](https://gitlab.inria.fr/ckatsama/mpfi.jl/-/commits/main) 
 
 `MPFI.jl` is a Julia wrapper for the [MPFI](https://perso.ens-lyon.fr/nathalie.revol/software.html) (Multiple Precision Floating-Point Interval) C library, which provides interval arithmetic with arbitrary precision, based on [MPFR](https://www.mpfr.org/). This package enables Julia users to perform high-precision interval computations seamlessly.
