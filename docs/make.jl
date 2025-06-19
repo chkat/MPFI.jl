@@ -27,7 +27,7 @@ makedocs(
     sitename = "MPFI.jl",
     format = Documenter.HTML(; prettyurls = get(ENV, "CI", nothing) == "true"),
     #modules = [MPFI], # this is to ensure that all docstrings are included in the documentation
-    # remotes = nothing,
+    repo = "https://gitlab.inria.fr/ckatsama/mpfi.jl/blob/{commit}{path}#{line}",
     checkdocs = :exports,
     pages = PAGES
 )
