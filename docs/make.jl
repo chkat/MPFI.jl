@@ -27,7 +27,7 @@ makedocs(
     sitename = "MPFI.jl",
     format = Documenter.HTML(; prettyurls = get(ENV, "CI", nothing) == "true"),
     #modules = [MPFI], # this is to ensure that all docstrings are included in the documentation
-    remotes = nothing,
+    # remotes = nothing,
     checkdocs = :exports,
     pages = PAGES
 )
