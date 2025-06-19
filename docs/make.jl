@@ -33,7 +33,7 @@ makedocs(
 )
 
 deploydocs(
-    repo = "https://gitlab.inria.fr/ckatsama/mpfi.jl",
+    repo = "https://gitlab.inria.fr/ckatsama/mpfi.jl.git",
     versions = ["dev" => "main"]
 )
 
