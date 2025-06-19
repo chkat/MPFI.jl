@@ -1,9 +1,9 @@
 image: registry.gitlab.inria.fr/navarop/julia:latest
 
 stages:
+  - deploy # mandatory name for the stage to GitLab detect it's a Pages deployment
   - build
   - test
-  - deploy # mandatory name for the stage to GitLab detect it's a Pages deployment
 
 build:
   stage: build
@@ -59,6 +59,7 @@ pages:
     - ci.inria.fr
   stage: deploy
   before_script:
+    - apt-get update -qq && apt-get install -y git
     - git config --global --add safe.directory $CI_PROJECT_DIR
   script:
     - julia --project=docs -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
