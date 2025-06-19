@@ -1,29 +1,23 @@
 image: registry.gitlab.inria.fr/navarop/julia:latest
 
 stages:
+  - build
   - test
   - deploy # mandatory name for the stage to GitLab detect it's a Pages deployment
 
-linux:
+build:
+  stage: build
+  script:
+    - julia -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+  tags:
+    - ci.inria.fr
+
+
+test_linux:
   stage: test  
   tags:
-    - julia
-    - linux
-  variables:
-    JULIA_DEPOT_PATH: "/builds/.julia"
-  script:
-    - whoami
-    # - ssh-keyscan gitlab.inria.fr >> /root/.ssh/known_hosts
-    - eval "$(ssh-agent -s)"
-    - ssh-add ~/.ssh/id_ed25519
-    - ssh -T git@gitlab.inria.fr
-    - export PATH="$PATH:/builds/julia-1.11.1/bin"  # Add julia to the path
-    - julia --version
-    - julia -e 'using Pkg; Pkg.status()'  
-    - julia -e 'using Pkg; Pkg.Registry.status()'  
-    - julia --project=. -e 'using Pkg; Pkg.status()'  
-    - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
-    - julia --project=. -e 'using Pkg; Pkg.status()'   
+    - ci.inria.fr
+  script: 
     - julia --project=@. -e "import Pkg; Pkg.test(; coverage = true)"
     - julia --project=test/coverage -e 'import Pkg; Pkg.instantiate()'
     - julia --project=test/coverage test/coverage/coverage-summary.jl
