@@ -604,14 +604,14 @@ A `BigFloat` representing the Mignitude (smallest absolute value) of the interva
 function mig end
 
 for f in (:diam_abs, :diam_rel, :diam, :mag, :mig, :mid)
-    @eval function $(f)(x::BigInterval;precision::Integer=DEFAULT_PRECISION())
+    @eval function $(f)(x::BigInterval;precision::Integer=MPFI.precision(x))
         z = BigFloat(;precision=precision)
         ccall(($(string(:mpfi_,f)), libmpfi), Int32, (Ref{BigFloat}, Ref{BigInterval}), z, x)
         return z
     end
 end
 
-function ldexp(x::BigInterval, n::Clong;precision::Integer=DEFAULT_PRECISION())
+function ldexp(x::BigInterval, n::Clong;precision::Integer=MPFI.precision(x))
     z = BigInterval(;precision=precision)
     ccall((:mpfi_mul_2si, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Clong), z, x, n)
     return z
@@ -625,7 +625,7 @@ ldexp(x::BigInterval, n::ClongMax) = ldexp(x, convert(Clong, n))
 ldexp(x::BigInterval, n::CulongMax) = ldexp(x, convert(Culong, n))
 ldexp(x::BigInterval, n::Integer) = x * exp2(BigInterval(n))
 
-function hypot(x::BigInterval, y::BigInterval;precision::Integer=DEFAULT_PRECISION())
+function hypot(x::BigInterval, y::BigInterval;precision::Integer=MPFI.precision(x))
     z = BigInterval(;precision=precision)
     ccall((:mpfi_hypot, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}, Ref{BigInterval}), z, x, y)
     return z
