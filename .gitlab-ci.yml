@@ -58,9 +58,14 @@ pages:
     - ci.inria.fr
   stage: deploy
   script:
-    - julia -e 'using Pkg; Pkg.develop(path=pwd())' 
-    - julia -e 'using Pkg; import MPFI; Pkg.add("Documenter")' # install Documenter
-    - julia --color=yes docs/make.jl # make documentation
+    # - julia -e 'using Pkg; Pkg.develop(path=pwd())' 
+    # - julia -e 'using Pkg; import MPFI; Pkg.add("Documenter")' # install Documenter
+    # - julia --color=yes docs/make.jl # make documentation
+    - julia --project=docs -e '
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()'
+    - julia --project=docs docs/make.jl
     - mv docs/build public # move to the directory picked up by Gitlab pages
   artifacts:
     paths:
