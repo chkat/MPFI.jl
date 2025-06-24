@@ -1,9 +1,9 @@
 image: registry.gitlab.inria.fr/navarop/julia:latest
 
 stages:
-  - deploy # mandatory name for the stage to GitLab detect it's a Pages deployment
   - build
   - test
+  - deploy
 
 build:
   stage: build
