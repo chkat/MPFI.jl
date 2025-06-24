@@ -62,7 +62,7 @@ pages:
     - apt-get update -qq && apt-get install -y git libpcre2-8-0
     - git config --global --add safe.directory $CI_PROJECT_DIR
     - ln -sf /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0 /usr/lib/x86_64-linux-gnu/libpcre2-8.so
-    - export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+    - export LD_LIBRARY_PATH=/usr/local/julia/lib/julia:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
   script:
     - julia --project=docs -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
     - julia --project=docs --color=yes docs/make.jl
