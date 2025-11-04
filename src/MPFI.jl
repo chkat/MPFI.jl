@@ -8,7 +8,7 @@ import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._str
     sin, cos, tan, sec, ldexp, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, hypot,
     convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal,
     BigFloat, BigInt, Float64, Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, BigInt, Float32, 
-    real, imag, conj
+    real, imag, conj, isless
 
 import Base.GMP: ClongMax, CulongMax, CdoubleMax
 
@@ -1119,6 +1119,8 @@ julia> conj(x)
 ```
 """
 conj(x::BigInterval) = x
+
+isless(x::BigInterval, y::BigInterval) = left(x) < left(y) || (left(x) == left(y) && right(x) < right(y))
 
 end
 
