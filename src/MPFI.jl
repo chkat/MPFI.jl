@@ -3,7 +3,7 @@ module MPFI
 export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid, square
 
 
-import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, MPFR._string, MPFR, exp, exp2, 
+import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, isfinite, isinf, MPFR._string, MPFR, exp, exp2, 
     exp10, expm1, cosh, sinh, tanh, sech, csch, coth, inv, sqrt, cbrt, abs, log, log2, log10, log1p,
     sin, cos, tan, sec, ldexp, precision, csc, cot, acos, asin, atan, acosh, asinh, atanh, hypot,
     convert, sum, iszero, zero, one, sign, cmp, setprecision, promote_rule, isempty, isinf, deepcopy_internal,
@@ -762,6 +762,10 @@ Checks if the interval `x` is NaN (Not a Number).
 """
 function isnan(x::BigInterval)
     return ccall((:mpfi_nan_p, libmpfi), Int32, (Ref{BigInterval},), x) != 0
+end
+
+function isfinite(x::BigInterval)
+    return !isnan(x) && !isinf(x)
 end
 
 """
