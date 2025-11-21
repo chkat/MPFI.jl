@@ -18,6 +18,7 @@ test_linux:
   tags:
     - ci.inria.fr
   script: 
+    - julia --version
     - julia --project=@. -e "import Pkg; Pkg.test(; coverage = true)"
     - julia --project=test/coverage -e 'import Pkg; Pkg.instantiate()'
     - julia --project=test/coverage test/coverage/coverage-summary.jl
