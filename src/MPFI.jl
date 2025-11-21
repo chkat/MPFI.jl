@@ -955,53 +955,22 @@ end
 
 
 function string(x::BigInterval)
-    # The contents of x are passed in a BigFloat
-    # BigFloat._d is not set but there is no need 
-    # The memory @ d is managed by GMP
-
     if isnan(x)
         return "[NaN, NaN]"
     else
-
-        left = BigFloat()
-        left.prec = x.left_prec
-        left.sign = x.left_sign
-        left.exp = x.left_exp
-        left.d = x.left_d
-
-        right = BigFloat()
-        right.prec = x.right_prec
-        right.sign = x.right_sign
-        right.exp = x.right_exp
-        right.d = x.right_d
-        return "[$(string(left)), $(string(right))]"
-        #return "[$(MPFR._prettify_bigfloat(MPFR.string_mpfr(left, "%RDe"))), $(MPFR._prettify_bigfloat(MPFR.string_mpfr(right, "%RUe")))]"
+        left_val = left(x)
+        right_val = right(x)
+        return "[$(string(left_val)), $(string(right_val))]"
     end
-
 end
 
 function string(x::BigInterval, k::Integer)
-    # The contents of x are passed in a BigFloat
-    # BigFloat._d is not set but there is no need 
-    # The memory @ d is managed by GMP
-
     if isnan(x)
-        return "[NaN, NaN]" #"[$(string(Float64(left(x)))), $(string(Float64(right(x))))]"
+        return "[NaN, NaN]"
     else
-        left = BigFloat()
-        left.prec = x.left_prec
-        left.sign = x.left_sign
-        left.exp = x.left_exp
-        left.d = x.left_d
-
-        right = BigFloat()
-        right.prec = x.right_prec
-        right.sign = x.right_sign
-        right.exp = x.right_exp
-        right.d = x.right_d
-
-        #return "[$(_string(left, k)), $(_string(right, k))]"
-        return "[$(MPFR._prettify_bigfloat(MPFR.string_mpfr(left, "%.$(k)RDe"))), $(MPFR._prettify_bigfloat(MPFR.string_mpfr(right, "%.$(k)RUe")))]"
+        left_val = left(x)
+        right_val = right(x)
+        return "[$(MPFR._prettify_bigfloat(MPFR.string_mpfr(left_val, "%.$(k)RDe"))), $(MPFR._prettify_bigfloat(MPFR.string_mpfr(right_val, "%.$(k)RUe")))]"
     end
 end
 
