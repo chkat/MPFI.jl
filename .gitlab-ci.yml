@@ -39,7 +39,7 @@ windows:
     - julia --version
     - julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.update()'   # Install dependencies
     - julia -e 'using Pkg; Pkg.status()'  # Install dependencies
-    - julia --project=. test/runtests.jl"  # Run tests 
+    - julia --project=. test/runtests.jl  # Run tests 
 
 # macOS tests
 # macos:
