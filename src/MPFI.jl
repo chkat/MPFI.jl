@@ -388,6 +388,12 @@ function sum(arr::AbstractArray{BigInterval})
     return z
 end
 
+function div_2exp(x::BigInterval, k::Integer)
+    z = BigInterval(;precision=MPFI.precision(x))
+    ccall((:mpfi_div_2exp, libmpfi), Int32, (Ref{BigInterval},Ref{BigInterval}, Culong), z, x, Culong(k))
+    return z
+end
+
 for (fJ, fC) in ((:-,:sub), (:/,:div))
     @eval begin 
         function ($fJ)(x::BigInterval, y::BigInterval)
