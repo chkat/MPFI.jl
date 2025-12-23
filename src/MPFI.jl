@@ -1,6 +1,6 @@
 module MPFI
 
-export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid, square
+export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid, square, copy_to_precision
 
 
 import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, isfinite, isinf, MPFR._string, MPFR, exp, exp2, 
@@ -220,6 +220,12 @@ BigInterval(x::BigInterval) = x
 
 function deepcopy_internal(x::BigInterval, stackdict::IdDict)
     z = BigInterval(;precision=precision(x))
+    ccall((:mpfi_set, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
+    return z
+end
+
+function copy_to_precision(x::BigInterval, precision::Integer=precision(x))
+    z = BigInterval(;precision=precision)
     ccall((:mpfi_set, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
     return z
 end
