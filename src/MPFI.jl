@@ -1,6 +1,6 @@
 module MPFI
 
-export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid, square, copy_to_precision
+export BigInterval, precision, left, right, has_zero, isbounded, intersect, union, is_inside, bisect, blow, diam_abs, diam_rel, diam, mag, mig, mid, square, copy_to_precision, rec_sqrt, div_2exp, power_by_squaring
 
 
 import Base: +, -, *, /, ==, <, >, <=, >=, string, print, show, isnan, isfinite, isinf, MPFR._string, MPFR, exp, exp2, 
@@ -488,6 +488,71 @@ function square(x::BigInterval; precision::Integer=DEFAULT_PRECISION())
     z = BigInterval(;precision=precision)
     ccall((:mpfi_sqr, libmpfi), Int32, (Ref{BigInterval}, Ref{BigInterval}), z, x)
     return z
+end
+
+# Use `mpfi_sqr` for squaring steps (Base's generic `power_by_squaring` uses `x *= x`).
+"""
+    power_by_squaring(x::BigInterval, p::Integer) -> BigInterval
+
+Integer power ``x^p`` via exponentiation by squaring, delegating to `Base.power_by_squaring`.
+This is the same path used by `x^p` when `p` is an `Integer`.
+
+Squaring steps call `square` (C `mpfi_sqr`), not interval multiplication `x * x`. For a single
+interval `x`, writing `x * x` treats the two factors as **independent** copies of the set, which
+widen the result. For example, with `x = BigInterval(-2, 2)` one gets
+`square(x) == BigInterval(0, 4)` while `x * x == BigInterval(-4, 4)`. Using `square` / `x^p` keeps
+squarings as true unary maps on the interval and can yield **strictly tighter** enclosures than
+naively repeating `*`.
+
+!!! note
+    Odd powers still combine squarings with multiplications `y *= x`; only the squaring steps are
+    special-cased.
+
+# Arguments
+- `x::BigInterval`: base interval
+- `p::Integer`: exponent. For a **literal** negative integer in code (e.g. `x^(-6)`), Julia uses
+  `Base.literal_pow` and computes `inv(x)^(-p)` with a **positive** exponent, so this method is not
+  called with `p < 0`. For a **non-literal** exponent (`p = -6; x^p`), `Base` only allows negative
+  `p` when `isone(x)` or `isone(-x)`; otherwise a `DomainError` is raised (same as for other
+  `Number` types).
+
+# See also
+- `square`, `Base.^`
+"""
+function power_by_squaring(x::BigInterval, p::Integer)
+    return Base.power_by_squaring(x, p)
+end
+
+function Base.power_by_squaring(x_::BigInterval, p::Integer)
+    x = Base.to_power_type(x_)
+    px = precision(x)
+    sqr(x) = square(x; precision=px)
+    if p == 1
+        return copy_to_precision(x, px)
+    elseif p == 0
+        return one(x)
+    elseif p == 2
+        return sqr(x)
+    elseif p < 0
+        isone(x) && return copy_to_precision(x, px)
+        isone(-x) && return iseven(p) ? one(x) : copy_to_precision(x, px)
+        Base.throw_domerr_powbysq(x, p)
+    end
+    t = trailing_zeros(p) + 1
+    p >>= t
+    while (t -= 1) > 0
+        x = sqr(x)
+    end
+    y = x
+    while p > 0
+        t = trailing_zeros(p) + 1
+        p >>= t
+        while (t -= 1) >= 0
+            x = sqr(x)
+        end
+        y *= x
+    end
+    return y
 end
 
 for f in (:exp, :exp2, :exp10, :expm1, :cosh, :sinh, :tanh, :sech, :csch, :coth, :inv,

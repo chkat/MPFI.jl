@@ -77,6 +77,20 @@ using Test
         # square
         @test square(BigInterval(2)) == BigInterval(4)
         @test square(BigInterval(-2, 2)) == BigInterval(0, 4)
+
+        # integer powers use power_by_squaring → square for squaring steps
+        @test BigInterval(2)^0 == one(BigInterval)
+        @test BigInterval(2)^1 == BigInterval(2)
+        # Literal negative exponent: lowered to inv(x)^(-p) (positive power); see Base.literal_pow
+        @test BigInterval(2)^(-7) == inv(BigInterval(2))^7
+        # Non-literal exponent: Base.power_by_squaring rejects p < 0 unless isone(+-x)
+        p = -7
+        @test_throws DomainError BigInterval(2)^p
+        @test BigInterval(-2, 2)^4 == BigInterval(0, 16)
+
+        xw = BigInterval(-2, 2; precision=64)
+        @test MPFI.power_by_squaring(xw, 2) == square(xw; precision=precision(xw))
+        @test MPFI.power_by_squaring(xw, 2) != xw * xw
     end
 
     # String parsing and conversion
