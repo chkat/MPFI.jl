@@ -46,10 +46,10 @@ MPFI.mid
 
 # Integer powers
 
-For `x::BigInterval` and integer `p`, `x^p` uses [`Base.power_by_squaring`](https://docs.julialang.org/en/v1/base/math/#Base.power_by_squaring), specialized so that **squaring steps** call `square` (C `mpfi_sqr`) instead of interval multiplication `x * x`.
+For `x::BigInterval` and integer `p`, `x^p` uses [`Base.power_by_squaring`](https://docs.julialang.org/en/v1/base/math/#Base.power_by_squaring). **Squaring steps** call `square` (C `mpfi_sqr`), not interval multiplication `x * x`. The exported `power_by_squaring` matches `x^p` and uses `square` for those squaring steps.
 
 !!! note "Squaring is not the same as multiplying an interval by itself"
-    In interval arithmetic, `x * y` computes an enclosure of ``\\{a b : a \\in x,\\, b \\in y\\}``. Taking `y = x` still uses that **Cartesian product** rule, so the two occurrences of `x` are treated as **independent** (dependency problem). For example, `BigInterval(-2, 2) * BigInterval(-2, 2)` gives ``[-4, 4]``, while `square(BigInterval(-2, 2))` gives ``[0, 4]``, which is the actual range of ``t^2`` for ``t \\in [-2, 2]``. The exported `power_by_squaring` matches `x^p` and uses `square` for those squaring steps.
+    In interval arithmetic, $x * y$ computes an enclosure of $\{a\cdot b : a \in x\, b \in y\}$. For a single interval $x$, writing $x * x$ treats the two factors as **independent** copies of the set, which **widen** the result. For example, `BigInterval(-2, 2) * BigInterval(-2, 2)` gives $[-4, 4]$, while `square(BigInterval(-2, 2))` gives $[0, 4]$, which is the actual range of $t^2$ for $t \in [-2, 2]$. The exported `power_by_squaring` matches `x^p` and uses `square` for those squaring steps.
 
 ```@docs
 MPFI.power_by_squaring
