@@ -1,13 +1,14 @@
 name = "MPFI"
 uuid = "e50a78b8-6e2f-482e-b7c3-776aa2235d1a"
 authors = ["Christina Katsamaki"]
-version = "0.0.4"
+version = "0.0.5"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 MPFI_jll = "e8b5fb6c-218f-5c08-bc3d-6b0e551bbffd"
 
 [compat]
+MPFI_jll = "1.5.7"
 julia = "1.6.7"
 
 [extras]
