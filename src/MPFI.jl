@@ -759,6 +759,17 @@ cmp(y::CulongMax, x::BigInterval) = -cmp(x,y)
 
 cmp(x::BigInterval, y::Integer) = cmp(x,big(y))
 cmp(x::Integer, y::BigInterval) = -cmp(y,x)
+# integers wider than Clong (Int64 on Windows, Int128), in both orders
+==(x::BigInterval, y::Integer) = cmp(x,y) == 0
+<=(x::BigInterval, y::Integer) = cmp(x,y) != 1
+>=(x::BigInterval, y::Integer) = cmp(x,y) != -1
+<(x::BigInterval, y::Integer) = cmp(x,y) == -1
+>(x::BigInterval, y::Integer) = cmp(x,y) == 1
+==(x::Integer, y::BigInterval) = cmp(y,x) == 0
+<=(x::Integer, y::BigInterval) = cmp(y,x) != -1
+>=(x::Integer, y::BigInterval) = cmp(y,x) != 1
+<(x::Integer, y::BigInterval) = cmp(y,x) == 1
+>(x::Integer, y::BigInterval) = cmp(y,x) == -1
 
 function cmp(x::BigInterval, y::CdoubleMax)
     isnan(x) && return isnan(y) ? 0 : 1
@@ -939,6 +950,8 @@ for (fJ, fC) in ((:z,:BigInt), (:fr,:BigFloat))
         end
     end
 end
+# other integers (Int64 on Windows, where Clong is 32 bits; Int128): through BigInt
+is_inside(x::Integer, int::BigInterval) = is_inside(BigInt(x), int)
 
 
 

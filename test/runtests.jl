@@ -141,4 +141,14 @@ using Test
         # Blow
         @test blow(x, 0.5) == BigInterval(0.5, 3.5)
     end
+
+    # integers wider than Clong: Int64 on Windows, Int128 everywhere
+    @testset "Comparisons with wide integers" begin
+        d = BigInterval(2)
+        for T in (Int32, Int64, Int128, UInt128, BigInt)
+            @test d > T(0) && T(0) < d && d >= T(2) && T(2) <= d && d == T(2)
+            @test !(BigInterval(-1, 1) > T(0)) && !(BigInterval(-1, 1) < T(0))
+            @test is_inside(T(2), d) && !is_inside(T(3), d)
+        end
+    end
 end
